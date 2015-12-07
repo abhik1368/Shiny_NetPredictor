@@ -8,7 +8,7 @@
 * **Version:** 1.0.1
 * ![Status](http://img.shields.io/badge/status-In_development_%28UNSTABLE%29-red.svg?style=flat)
 * [![License](http://img.shields.io/badge/license-AGPL--3-orange.svg?style=flat)](https://www.gnu.org/licenses/agpl-3.0.html)
-* **Source:** [GitHub](https://github.com/abhik1368/netpredicter)
+* **Source:** [GitHub](https://github.com/abhik1368/Shiny_NetPredictor)
 * **Problems:** [Bug reports and feature reqests](https://github.com/abhik1368/netpredicter/issues)
 * **Authors:** [Abhik Seal](https://www.linkedin.com/in/abseal)
 
