@@ -1,5 +1,5 @@
 library(shinyBS)
-library(shinythemes)
+library(shinythemes) 
 library(shiny)
 library(shinysky)
 library(shinyjs)
@@ -149,8 +149,9 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                         
                                        ),
                                       busyIndicator("Calculation In progress",wait = 0),
-                                       actionButton('start', label='Start Prediction',
+                                       actionButton('start', label='Run Prediction',
                                                      class="btn btn-primary"),
+                                      
                                      render_helpfile("Data Input", "mds/import.md")
                                        ),mainPanel( 
                                            tabsetPanel(id='datatabs',
@@ -165,6 +166,13 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                                                uiOutput("countProteins"))
                                                                 )
                                                                 ),
+                                                       tabPanel("Network Modules",
+                                                                br(),
+                                                                actionButton('mods', label='Calculate Modules',class="btn btn-primary"),
+                                                                uiOutput('modules'),
+                                                                dataTableOutput("data_table"),
+                                                                actionButton('shownet', label='Show Network',class="btn btn-primary"),
+                                                                visNetworkOutput("moduleplot",height="300px")),
                                                        tabPanel("Prediction Results",
             
                                                                 h4(textOutput("Prediction Results",container = span)),
@@ -228,7 +236,8 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                 render_helpfile("Advanced Analysis", "mds/analysis.md")
                             ),mainPanel(tabPanel('Statistical Analysis',
                                                      h3(textOutput("Analysis")),
-                                                     dataTableOutput("advTable")))
+                                                     dataTableOutput("advTable"),
+                                                     downloadButton("downloadadvr", "Download results as csv file")))
                             
 
                             

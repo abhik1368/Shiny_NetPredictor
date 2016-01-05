@@ -3,6 +3,9 @@ library(igraph)
 library(shiny)
 require(shinysky)
 library(reshape2)
+library(lpbrim)
+library(rlist)
+
 getProp <- function(data){
 
     ## degree Centrality of the Bipartite Graph
@@ -42,6 +45,17 @@ getProp <- function(data){
 #     bg=graph.incidence(A)
 #     pr=bipartite.projection(bg) 
 #     gp <- get.Communities(pr$proj1)
+}
+
+
+getMod <- function(dt){
+    M <- as.matrix(dt)
+    M <- M[rowSums(M)>0, colSums(M)>0]
+    mod <- findModules(M, iter=1, sparse=FALSE)
+    d <- getmodules(mod)
+    p <- list.filter(d, x ~ dim(x)[1] > 0  )
+    p
+
 }
 
 

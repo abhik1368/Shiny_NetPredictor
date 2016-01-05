@@ -10,7 +10,6 @@ source('global.R')
 library(networkD3)
 library(visNetwork)
 
-
 shinyServer( function(input, output,session) {
     
     observe({
@@ -76,6 +75,38 @@ shinyServer( function(input, output,session) {
 
     })
  
+## Get the modules of the bipartite network
+totModules <- reactive({
+     
+    if (input$mods <= 0){
+             return(NULL)
+    } 
+    
+     input$mods
+     results <- isolate({
+         input$mods
+         if(input$data_input_type=="example"){
+             dset <- input$datasets
+             exdata <- paste(dset,".rda",sep="")
+             load(exdata)
+             dm <-as.matrix(adjm)
+             mod <- getMod(dm)
+             mod
+         } else if(input$data_input_type=="custom") {
+             if (is.null(input$dt_file))
+                 return(NULL)
+             
+             DTFile <- input$dt_file
+             dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
+             mod <- getMod(dataDT)
+             mod
+         }
+         
+     })
+     results
+ })
+
+## This for the drugs 
 topDrugs <- reactive({
      
     if (input$start <= 0){
@@ -89,14 +120,13 @@ topDrugs <- reactive({
                 exdata <- paste(dset,".rda",sep="")
                 load(exdata)
                 dt <- t(adjm)
-                ## This for the drugs
                 topRows <- data.frame(rowSums(dt))
                 colnames(topRows)[1] <- "count"
                 topRows$Drugs <- row.names(topRows)
                 res <- topRows[order(-topRows$count),][1:15,]
                 rownames(res)<- NULL
                 res 
-            } else if(nput$data_input_type=="custom") {
+            } else if(input$data_input_type=="custom") {
                 if (is.null(input$dt_file))
                     return(NULL)
                 
@@ -135,13 +165,13 @@ topProteins <- reactive({
             res <- topRows[order(-topRows$count),][1:15,]
             rownames(res)<- NULL
             res 
-        } else if(nput$data_input_type=="custom") {
+        } else if(input$data_input_type=="custom") {
             if (is.null(input$dt_file))
                 return(NULL)
             
             DTFile <- input$dt_file
             dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
-            topRows <- data.frame(colSums(data))
+            topRows <- data.frame(rowSums(dataDT))
             colnames(topRows)[1] <- "count"
             topRows$Proteins <- row.names(topRows)
             res <- topRows[order(-topRows$count),][1:15,]
@@ -156,20 +186,125 @@ topProteins <- reactive({
 
 
 
- 
+## Output properties table 
 output$prop_table <- renderTable({
     prop()
      
  })
  
+## Output count distribution of drugs
 output$countDrugs <- renderTable({
     topDrugs()
 })
 
+## Output count distribution of proteins
 output$countProteins <- renderTable({
     topProteins()
 })
 
+## Get the count of modules
+
+tot_modules <- reactive({
+    mod <- totModules()
+    len <- length(mod)
+    modules <- c()
+    for (i in 1:len){
+        
+        modules[i] <- paste("module",toString(i),sep="")
+    }
+   return(modules)
+ })
+
+## Get the list of modules
+full_modules <- reactive({
+    mod <- totModules()
+    return(mod)
+})
+
+## Update dynamically the list of modules
+output$modules = renderUI({
+    
+    selectInput('module', 'Modules', tot_modules())
+})
+
+
+# Output the data table of modules
+data_table <- reactive({
+    # If missing input, return to avoid error later in function
+    if(is.null(input$module))
+        return()
+    
+    # Get the module
+    dat <- input$module
+    
+    if (dat %in%  tot_modules())
+        modIndx <- match(dat, tot_modules())
+    
+    modMat <- full_modules()
+    mod <- modMat[[modIndx]]
+    gMod <- graph.incidence(mod)
+    el <- get.edgelist(gMod)
+    colnames(el) <- c("column1","column2")
+    return (el)
+    
+})
+
+## Out the module list on the data table
+output$data_table <- renderDataTable( {
+    data_table()
+},options = list(pageLength = 10,
+    autoWidth = TRUE,
+    columnDefs = list(list(width = '50px', targets = "_all")))
+)
+
+
+modnetwork <- reactive({
+    
+    if (input$shownet <= 0){
+        return(NULL)
+    }
+    
+    netResult <- isolate({
+        input$shownet
+        if(is.null(input$module))
+            return()
+        
+        # Get the module
+        dat <- input$module
+        
+        if (dat %in%  tot_modules())
+            modIndx <- match(dat, tot_modules())
+        
+        modMat <- full_modules()
+        mod <- modMat[[modIndx]]
+        gMod <- graph.incidence(mod)
+        el <- data.frame(get.edgelist(gMod))
+        colnames(el) <- c("column1","column2")
+        nodes <- unique(c(as.character(el$column1), as.character(el$column2)))
+        group1 <- length(unique(el$column1))
+        group2 <- length(unique(el$column2))
+        id=seq(0,length(nodes)-1,1)
+        label=nodes
+        print (dim(el))
+        nodeData <- data.frame(id ,label,group=c(rep("Drugs",group1),rep("Proteins",group2)),stringsAsFactors=FALSE)
+        colnames(el)[1] <- "from"
+        colnames(el)[2] <- "to"
+        edgeList <- el[, c("from","to")]
+        edgeList$from <- with(nodeData, id[match(edgeList$from, nodes)])
+        edgeList$to <- with(nodeData, id[match(edgeList$to,nodes)])
+        #edgeList$dashes <- ifelse(mynet$type == "True Interactions",FALSE,TRUE)
+        netresult <- visNetwork(nodeData, edgeList,height="350px",width = "50%") %>% visInteraction(navigationButtons = TRUE,tooltipDelay = 0) %>% visLegend() %>% visNodes(scaling=list(min=20),font=list(size=24)) %>%
+            visOptions(selectedBy = "group", nodesIdSelection = TRUE,highlightNearest = TRUE) %>% visPhysics(stabilization=FALSE) %>% visLayout(randomSeed = 123) %>% visPhysics(stabilization=list(iterations=1))
+        
+        
+    })
+    netResult
+})
+
+
+output$moduleplot <- renderVisNetwork({
+    modnetwork()
+})
 
  observe({
      if (input$start == 0) 
@@ -177,23 +312,7 @@ output$countProteins <- renderTable({
      showshinyalert(session, "shinyalert1", paste("Computation in progress", "success"), 
                     styleclass = "success")
  })
- 
-#  ntext <- eventReactive(input$start, {
-#      
-#      set <- input$datasets
-#      print(set)
-#      exdata <- paste(tolower(set),".rda")
-#      load(exdata)
-#      chem_sim <- paste(tolower(set),"_Csim")
-#      vector_data<- unmatrix(chem_sim,byrow=T)
-#      
-#  })
-#  
-#  output$nText <- renderPlot({
-#      ntext()
-#  })
- 
- 
+
  
  Result <- reactive({
      
@@ -341,7 +460,7 @@ output$countProteins <- renderTable({
      
      if (input$start <= 0){
          return(NULL)
-     } 
+     }
      input$start
      netResult <- isolate({
          mynet <- Result()
@@ -564,6 +683,16 @@ output$countProteins <- renderTable({
      
  ## output table for the navbarmenu tabs    
  output$advTable <-  renderDataTable(myresult$df)
+ 
+ output$downloadadvr <- downloadHandler(
+     
+     filename = function() { paste("advResults.txt") },
+     
+     content = function(file) {
+         write.table(myresult$df, file, row.names=FALSE, quote=FALSE, sep="\t")
+         
+     })
+ 
 
   output$sigTable <-  renderDataTable({
      sigResult()
@@ -578,8 +707,8 @@ output$countProteins <- renderTable({
           
       })
  
- addPopover(session, "Result", "Predicted Results", placement = "top",content = paste0("Shows the predicted results in a data table format"), trigger = 'click')
- addPopover(session, "prop_table", "Network Properties", placement = "top",content = paste0("Represents the current selected network properties"), trigger = 'click')
- addPopover(session, "advTable", "Network plot", placement = "top",content = paste0("This panel shows the predicted values"), trigger = 'click')
+ #addPopover(session, "Result", "Predicted Results", placement = "top",content = paste0("Shows the predicted results in a data table format"), trigger = 'click')
+ #addPopover(session, "prop_table", "Network Properties", placement = "top",content = paste0("Represents the current selected network properties"), trigger = 'click')
+ #addPopover(session, "advTable", "Network plot", placement = "top",content = paste0("This panel shows the predicted values"), trigger = 'click')
  
 })
