@@ -9,6 +9,10 @@ library(data.table)
 source('global.R')
 library(networkD3)
 library(visNetwork)
+library(DBI)
+library(RSQLite)
+set.seed(12345)
+
 
 shinyServer( function(input, output,session) {
     
@@ -28,12 +32,11 @@ shinyServer( function(input, output,session) {
 ## Get the properties         
  prop <- reactive({
      
-     if (input$start <= 0){
+     if (input$netproperty <= 0){
          return(NULL)
      } 
-     input$start
      result <- isolate({ 
-         
+         input$netproperty
          tryCatch ({
          
          if(input$data_input_type=="example"){
@@ -109,12 +112,12 @@ totModules <- reactive({
 ## This for the drugs 
 topDrugs <- reactive({
      
-    if (input$start <= 0){
+    if (input$netproperty <= 0){
         return(NULL)
     } 
         # Use isolate() to avoid dependency on input$obs
         results <- isolate({
-            input$start
+            input$netproperty
             if(input$data_input_type=="example"){
                 dset <- input$datasets
                 exdata <- paste(dset,".rda",sep="")
@@ -146,13 +149,13 @@ topDrugs <- reactive({
  
 topProteins <- reactive({
     
-    if (input$start <= 0){
+    if (input$netproperty <= 0){
         return(NULL)
     } 
     
     # Use isolate() to avoid dependency on input$obs
     results <- isolate({
-        input$start
+        input$netproperty
         if(input$data_input_type=="example"){
             dset <- input$datasets
             exdata <- paste(dset,".rda",sep="")
@@ -293,8 +296,8 @@ modnetwork <- reactive({
         edgeList$from <- with(nodeData, id[match(edgeList$from, nodes)])
         edgeList$to <- with(nodeData, id[match(edgeList$to,nodes)])
         #edgeList$dashes <- ifelse(mynet$type == "True Interactions",FALSE,TRUE)
-        netresult <- visNetwork(nodeData, edgeList,height="350px",width = "50%") %>% visInteraction(navigationButtons = TRUE,tooltipDelay = 0) %>% visLegend() %>% visNodes(scaling=list(min=20),font=list(size=24)) %>%
-            visOptions(selectedBy = "group", nodesIdSelection = TRUE,highlightNearest = TRUE) %>% visPhysics(stabilization=FALSE) %>% visLayout(randomSeed = 123) %>% visPhysics(stabilization=list(iterations=1))
+        netresult <- visNetwork(nodeData, edgeList,width = "70%") %>% visNodes(size = 25) %>% visInteraction(navigationButtons = TRUE,tooltipDelay = 0) %>% visLegend() %>% visNodes(scaling=list(min=20),font=list(size=24)) %>%
+            visOptions(selectedBy = "group", nodesIdSelection = TRUE,highlightNearest = TRUE)%>% visPhysics(solver = "barnesHut",barnesHut = list(gravitationalConstant = -1000,avoidOverlap=0.5,springLength=250))
         
         
     })
@@ -477,8 +480,8 @@ output$moduleplot <- renderVisNetwork({
          edgeList$from <- with(nodeData, id[match(edgeList$from, nodes)])
          edgeList$to <- with(nodeData, id[match(edgeList$to,nodes)])
          edgeList$dashes <- ifelse(mynet$type == "True Interactions",FALSE,TRUE)
-         netresult <- visNetwork(nodeData, edgeList,height="700px",width = "100%") %>% visInteraction(navigationButtons = TRUE,tooltipDelay = 0) %>% visLegend() %>% visNodes(scaling=list(min=20),font=list(size=24)) %>%
-             visOptions(selectedBy = "group", nodesIdSelection = TRUE,highlightNearest = TRUE) %>% visPhysics(stabilization=FALSE) %>% visLayout(randomSeed = 123) %>% visPhysics(stabilization=list(iterations=100))
+         netresult <- visNetwork(nodeData, edgeList,height="700px",width = "100%") %>% visInteraction(navigationButtons = TRUE,tooltipDelay = 0) %>% visNodes(size=25) %>% visNodes(scaling=list(min=20),font=list(size=24)) %>%
+             visOptions(selectedBy = "group", nodesIdSelection = TRUE,highlightNearest = TRUE) %>% visPhysics(stabilization=FALSE) %>% visPhysics(solver = "barnesHut",barnesHut = list(gravitationalConstant = -1000,avoidOverlap=0.5,springLength=250))
          
  
      })
@@ -706,9 +709,57 @@ output$moduleplot <- renderVisNetwork({
           write.table(sigResult(), file, row.names=FALSE, quote=FALSE, sep="\t")
           
       })
+  
+  
+  ## Drugbank Tabs
+  
+  dResult <- reactive({ 
+      if (input$dSearch <= 0){
+          return(NULL)
+      } 
+      
+      input$dSearch
+      dresults <- isolate({
+         if(input$search_type=='drugs'){
+             input$dSearch
+             drug = input$did
+             dname <-  gsub(" ", "", drug, fixed = TRUE)
+             con = dbConnect(SQLite(), dbname="drugbank_prediction.db")
+             #alltables = dbListTables(con)
+             dq <-  sprintf("select DRUGBANK_ID,drugbank_predictions.UNIPROTID,pvalue,outcome,NAME,GENE from drugbank_predictions,target_info where drugbank_predictions.UNIPROTID=target_info.UNIPROTID and drugbank_predictions.DRUGBANK_ID=\'%s\'",dname)
+             p1 = dbGetQuery(con,dq)
+             dbDisconnect(con)
+             p1
+         } else if(input$search_type=='proteins'){
+              input$dSearch
+              protein = input$pid
+              pname <-  gsub(" ", "", toupper(protein), fixed = TRUE)
+              
+              con = dbConnect(SQLite(), dbname="drugbank_prediction.db")
+              pq <-  sprintf("select DRUGBANK_ID,GENE,pvalue,outcome from drugbank_predictions, target_info where drugbank_predictions.UNIPROTID = target_info.UNIPROTID and target_info.GENE =\'%s\'",pname)
+              t1 = dbGetQuery(con,pq)
+              dbDisconnect(con)
+              t1
+          }
+  
+      })
+        #dresults
+  })
+
  
+  output$dtable <-  renderDataTable({
+      dResult()
+  })
+  
+  output$dBdownload <- downloadHandler(
+      
+      filename = function() { paste("drugbank_result.txt") },
+      
+      content = function(file) {
+          write.table(dResult(), file, row.names=FALSE, quote=FALSE, sep="\t")
+          
+      })
  #addPopover(session, "Result", "Predicted Results", placement = "top",content = paste0("Shows the predicted results in a data table format"), trigger = 'click')
  #addPopover(session, "prop_table", "Network Properties", placement = "top",content = paste0("Represents the current selected network properties"), trigger = 'click')
  #addPopover(session, "advTable", "Network plot", placement = "top",content = paste0("This panel shows the predicted values"), trigger = 'click')
- 
 })

@@ -5,7 +5,7 @@ require(shinysky)
 library(reshape2)
 library(lpbrim)
 library(rlist)
-
+set.seed(12345)
 getProp <- function(data){
 
     ## degree Centrality of the Bipartite Graph
@@ -51,7 +51,7 @@ getProp <- function(data){
 getMod <- function(dt){
     M <- as.matrix(dt)
     M <- M[rowSums(M)>0, colSums(M)>0]
-    mod <- findModules(M, iter=1, sparse=FALSE)
+    mod <- findModules(M, iter=10, sparse=FALSE)
     d <- getmodules(mod)
     p <- list.filter(d, x ~ dim(x)[1] > 0  )
     p

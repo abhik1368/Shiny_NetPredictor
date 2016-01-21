@@ -8,7 +8,7 @@ source("help.R")
 library(visNetwork)
 library(shinyGridster)
 shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", height = 32, width = 35) ,id ="bar",
-                   tabPanel("home",
+                   tabPanel(icon("home",lib = "glyphicon"),
                             
                             div(style = " text-align: center;font-family: 'times'",
                                 h2(" NetPredictor brings to you the power of finding missing links in Chem-Biological network .."),
@@ -43,7 +43,7 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                 br()
                             )
                    ),
-                   tabPanel("Start Prediction",
+                   tabPanel("Start Prediction",icon=icon("dot-circle-o"),
                                
                             tags$head(
                                  tags$style(HTML("
@@ -65,7 +65,7 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                 HTML('<style type="text/css">
                                         .well { background-color: #ffffff; }
                                  </style>'),
-                                       h4("load your data (or select Example)"),
+                                       h4(icon("upload",lib = "glyphicon"),"load your data (or select Example)"),
                                        radioButtons(inputId="data_input_type", 
                                                     label="",
                                                     choices=c("Custom Data"="custom", "Example Data"="example"),
@@ -78,7 +78,7 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                        conditionalPanel(condition = "input.data_input_type == 'example'",
                                                     
                                                             selectInput("datasets", "Example datasets", choices = c("Enzyme","GPCR","Ion Channel","Nuclear Receptor"),selected = "",multiple = FALSE),
-                                                        h4("Select Network Alogirthms"),
+                                                        h4(icon("magic",lib = "font-awesome"),"Select Network Alogirthms"),
                                                         radioButtons(inputId="algorithm_typeI", 
                                                                      label="",
                                                                      choices=c("HeatS"="heat","Network Based Inference"="nbi","Random Walk with Restart"="rwr","NetCombo"="netcombo"),
@@ -156,7 +156,8 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                        ),mainPanel( 
                                            tabsetPanel(id='datatabs',
                                                        
-                                                       tabPanel("Network Properties",
+                                                       tabPanel("Network Properties",br(),
+                                                                actionButton('netproperty', label='Calculate Properties',class="btn btn-primary"),
                                                                 h3(textOutput("Data Summary", container = span)),
                                                                 gridster(width = 250, height = 250,gridsterItem(row =1, col = 1, sizex = 1, sizey = 1, class = 'widget',
                                                                              uiOutput("prop_table")
@@ -167,12 +168,13 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                                 )
                                                                 ),
                                                        tabPanel("Network Modules",
+                                                                
                                                                 br(),
                                                                 actionButton('mods', label='Calculate Modules',class="btn btn-primary"),
-                                                                uiOutput('modules'),
+                                                                render_helpfile("Network Modules", "mds/module.md"),uiOutput('modules'),
                                                                 dataTableOutput("data_table"),
                                                                 actionButton('shownet', label='Show Network',class="btn btn-primary"),
-                                                                visNetworkOutput("moduleplot",height="300px")),
+                                                                visNetworkOutput("moduleplot",height="550px")),
                                                        tabPanel("Prediction Results",
             
                                                                 h4(textOutput("Prediction Results",container = span)),
@@ -189,10 +191,8 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
 
                   ## Statistical Analysis TAB
 
-                   navbarMenu(id='predtab',title="Advanced Analysis",
+                   navbarMenu(id='predtab',title="Advanced Analysis",icon=icon("gears"),
                    tabPanel("Statistical Analysis",value = "aa",
-                        
-                            
                             tags$head(
                                 tags$style(HTML("
                                                 h1 {
@@ -288,13 +288,42 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                    
                    )    
                    ),
-             tabPanel("About",
+
+                   tabPanel("Search Drugbank", icon= icon("search"),
+                            tags$head(
+                                tags$style(HTML("
+                                                h1 {
+                                                font-family: 'Verdana', cursive;
+                                                line-height: 1.1;
+                                                font-size : 16px;
+                                                color: #4863A0
+                                                }"))),
+                            headerPanel("Select Drug names/drugbank IDs to search"),br(),
+                            sidebarPanel(width = 3,
+                                         HTML('<style type="text/css">
+                                              .well { background-color: #ffffff; }
+                                              </style>'),
+                                         radioButtons(inputId="search_type", 
+                                                      label="",
+                                                      choices=c("Search Drugs"="drugs", "Search Porteins"="proteins"),
+                                                      selected="", inline=FALSE),
+                                         conditionalPanel(condition = "input.search_type == 'drugs'",
+                                         textInput("did", "Drugbank ID:", width = NULL)),
+                                         conditionalPanel(condition = "input.search_type == 'proteins'",
+                                                          textInput("pid", "Hugo Gene:", width = NULL)),
+                                         busyIndicator("Search In progress",wait = 0),
+                                         actionButton('dSearch', label='Submit',
+                                                      class="btn btn-primary")
+                                         
+                            ),mainPanel(tabPanel('Predicted Links',
+                
+                                   dataTableOutput("dtable"),
+                                   downloadButton("dBdownload", "Download results as csv file")
+                                   ))),
+             tabPanel("About", icon= icon("info-circle"),
                       HTML(markdown::markdownToHTML("mds/about.md", fragment.only=TRUE, options=c("")))
              )
                       
-              
-
-
 )
 )
 
