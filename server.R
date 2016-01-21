@@ -1,3 +1,16 @@
+# Copyright (C) 2015 Abhik Seal <abhik1368@gmail.com>
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details. 
+#################################################################################
+## Load the libraries
+
 library(netpredictor)
 library(igraph)
 library(gdata)
@@ -9,10 +22,14 @@ library(data.table)
 source('global.R')
 library(networkD3)
 library(visNetwork)
+<<<<<<< HEAD
 library(DBI)
 library(RSQLite)
 set.seed(12345)
 
+=======
+#################################################################################
+>>>>>>> origin/master
 
 shinyServer( function(input, output,session) {
     
@@ -747,6 +764,7 @@ output$moduleplot <- renderVisNetwork({
   })
 
  
+<<<<<<< HEAD
   output$dtable <-  renderDataTable({
       dResult()
   })
@@ -762,4 +780,10 @@ output$moduleplot <- renderVisNetwork({
  #addPopover(session, "Result", "Predicted Results", placement = "top",content = paste0("Shows the predicted results in a data table format"), trigger = 'click')
  #addPopover(session, "prop_table", "Network Properties", placement = "top",content = paste0("Represents the current selected network properties"), trigger = 'click')
  #addPopover(session, "advTable", "Network plot", placement = "top",content = paste0("This panel shows the predicted values"), trigger = 'click')
+=======
+ addPopover(session, "Result", "Predicted Results", placement = "top",content = paste0("Shows the predicted results in a data table format"), trigger = 'click')
+ addPopover(session, "prop_table", "Network Properties", placement = "top",content = paste0("Represents the current selected network properties"), trigger = 'click')
+ addPopover(session, "advTable", "Network plot", placement = "top",content = paste0("This panel shows the predicted values"), trigger = 'click')
+ 
+>>>>>>> origin/master
 })
