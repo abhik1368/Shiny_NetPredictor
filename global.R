@@ -16,14 +16,11 @@ library(igraph)
 library(shiny)
 require(shinysky)
 library(reshape2)
-<<<<<<< HEAD
 library(lpbrim)
 library(rlist)
 set.seed(12345)
-=======
 #################################################################################
 
->>>>>>> origin/master
 getProp <- function(data){
 
     ## degree Centrality of the Bipartite Graph

@@ -22,14 +22,11 @@ library(data.table)
 source('global.R')
 library(networkD3)
 library(visNetwork)
-<<<<<<< HEAD
 library(DBI)
 library(RSQLite)
 set.seed(12345)
 
-=======
 #################################################################################
->>>>>>> origin/master
 
 shinyServer( function(input, output,session) {
     
@@ -764,7 +761,6 @@ output$moduleplot <- renderVisNetwork({
   })
 
  
-<<<<<<< HEAD
   output$dtable <-  renderDataTable({
       dResult()
   })
@@ -780,10 +776,5 @@ output$moduleplot <- renderVisNetwork({
  #addPopover(session, "Result", "Predicted Results", placement = "top",content = paste0("Shows the predicted results in a data table format"), trigger = 'click')
  #addPopover(session, "prop_table", "Network Properties", placement = "top",content = paste0("Represents the current selected network properties"), trigger = 'click')
  #addPopover(session, "advTable", "Network plot", placement = "top",content = paste0("This panel shows the predicted values"), trigger = 'click')
-=======
- addPopover(session, "Result", "Predicted Results", placement = "top",content = paste0("Shows the predicted results in a data table format"), trigger = 'click')
- addPopover(session, "prop_table", "Network Properties", placement = "top",content = paste0("Represents the current selected network properties"), trigger = 'click')
- addPopover(session, "advTable", "Network plot", placement = "top",content = paste0("This panel shows the predicted values"), trigger = 'click')
  
->>>>>>> origin/master
 })
