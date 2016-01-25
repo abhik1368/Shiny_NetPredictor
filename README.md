@@ -12,6 +12,10 @@
 * **Problems:** [Bug reports and feature reqests](https://github.com/abhik1368/netpredicter/issues)
 * **Authors:** [Abhik Seal](https://www.linkedin.com/in/abseal)
 
+To install from github
+```{r, echo=FALSE}
+shiny::runGitHub('Shiny_NetPredictor', 'abhik1368')
+```
 
 
 ### Acknowledgements
