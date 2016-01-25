@@ -9,6 +9,34 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details. 
 #################################################################################
+# INSTALLATION OF PACKAGES FIRST
+list.of.packages <- c("devtools","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
+
+install.packages.auto <- function(x) { 
+    x <- as.character(substitute(x)) 
+    if(isTRUE(x %in% .packages(all.available=TRUE))) { 
+        eval(parse(text = sprintf("require(\"%s\")", x)))
+    } else { 
+        #update.packages(ask= FALSE) #update installed packages.
+        eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE)", x)))
+    }
+    if(isTRUE(x %in% .packages(all.available=TRUE))) { 
+        eval(parse(text = sprintf("require(\"%s\")", x)))
+    } else {
+        
+        devtools::install_github("abhik1368/netpredictor")
+        devtools::install_github("AnalytixWare/ShinySky")
+        devtools::install_github("PoisotLab/lpbrim")
+        devtools::install_github("shiny-gridster", "wch")
+        #biocLite(character(), ask=FALSE) #update installed packages.
+        
+    }
+}
+
+install.packages.auto(list.of.packages)
+#################################################################################
+
+#################################################################################
 ## Load the libraries
 
 library(netpredictor)
