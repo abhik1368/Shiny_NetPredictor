@@ -12,11 +12,11 @@
 * **Problems:** [Bug reports and feature reqests](https://github.com/abhik1368/netpredicter/issues)
 * **Authors:** [Abhik Seal](https://www.linkedin.com/in/abseal)
 
-To install from github
+To install from github . 
 ```{r, echo=FALSE}
 shiny::runGitHub('Shiny_NetPredictor', 'abhik1368')
 ```
-
+This will not install RRO package in your machine . For fast computations install RRO package from [MRAN](https://mran.revolutionanalytics.com/download/#download)
 
 ### Acknowledgements
 
