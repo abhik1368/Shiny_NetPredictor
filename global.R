@@ -10,7 +10,7 @@
 # GNU Affero General Public License for more details. 
 #################################################################################
 # INSTALLATION OF PACKAGES FIRST
-list.of.packages <- c("devtools","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
+list.of.packages <- c("devtools","shinyBS","shinyjs","shinythemes","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
 
 packages.auto <- function(x) { 
     x <- as.character(substitute(x)) 
