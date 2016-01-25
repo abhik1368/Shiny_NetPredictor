@@ -12,7 +12,7 @@
 # INSTALLATION OF PACKAGES FIRST
 list.of.packages <- c("devtools","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
 
-install.packages.auto <- function(x) { 
+packages.auto <- function(x) { 
     x <- as.character(substitute(x)) 
     if(isTRUE(x %in% .packages(all.available=TRUE))) { 
         eval(parse(text = sprintf("require(\"%s\")", x)))
@@ -33,7 +33,7 @@ install.packages.auto <- function(x) {
     }
 }
 
-install.packages.auto(list.of.packages)
+packages.auto(list.of.packages)
 #################################################################################
 
 #################################################################################
