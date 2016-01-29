@@ -83,9 +83,7 @@ getProp <- function(data){
              as.numeric(as.character(dim(data)[2])))
     df <- data.frame(NetworkProperties,Values)
    
-    
-    #colnames(df) <- c("Network Properties", "Values")
-    return (df)
+        return (df)
 #     bg=graph.incidence(A)
 #     pr=bipartite.projection(bg) 
 #     gp <- get.Communities(pr$proj1)
@@ -151,8 +149,7 @@ getrwr <- function(data,c){
     S1 = as.matrix(compSim) 
     S2 = as.matrix(protSim)
     g1 = graph.incidence(A)
-    Q = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=c,
-                  parallel=FALSE,multicores=NULL, verbose=T)
+    Q = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=c,verbose=T)
     tab <- getTopresults(A,Q,top=10,druglist=NULL)
     colnames(tab)[1] <- "Proteins"
     colnames(tab)[2] <- "Drugs"
@@ -172,7 +169,7 @@ getcombo <- function(data,Alpha,Lambda,C){
     S2 = as.matrix(protSim)
     g1 = graph.incidence(A)
     busyIndicator("Running RWR",wait = 0)
-    mat1 = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=C,parallel=FALSE,verbose=T)
+    mat1 = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=C,verbose=T)
     busyIndicator("Running NBI",wait = 0)
     mat2 <- nbiNet(A, lamda=Lambda, alpha=Alpha, s1=S1, s2=S2,format = "matrix")
     mat = (mat1+mat2)/2
@@ -231,8 +228,7 @@ getCustomRWR <- function (dataDT,dataD,dataT,C){
     S1 = as.matrix(dataD) 
     S2 = as.matrix(dataT)
     g1 = graph.incidence(A)
-    Q = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=C,
-                  parallel=FALSE,multicores=NULL, verbose=T)
+    Q = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=C, verbose=T)
     tab <- getTopresults(A,Q,top=10,druglist=NULL)
     colnames(tab)[1] <- "Proteins"
     colnames(tab)[2] <- "Drugs"
@@ -251,7 +247,7 @@ getCustomCombo <- function (dataDT,dataD,dataT,nc_alpha,nc_lamda,C){
     S1 = as.matrix(dataD) 
     S2 = as.matrix(dataT)
     g1 = graph.incidence(A)
-    mat1 = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=C,parallel=FALSE,verbose=T)
+    mat1 = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=C,verbose=T)
     mat2 <- nbiNet(A, lamda=nc_lamda, alpha=nc_alpha, s1=S1, s2=S2,format = "matrix")
     mat = (mat1+mat2)/2
     tab <- getTopresults(A,mat,top=10,druglist=NULL)
@@ -331,8 +327,7 @@ permTest <- function(dataDT,dataD,dataT,restart=NULL,alpha=NULL,lamda=NULL,permu
     } else if (calgo=="rwr"){
         
         g1 = graph.incidence(A)
-        Q = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=restart,
-                      parallel=FALSE,multicores=NULL, verbose=T)
+        Q = biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=restart,verbose=T)
         
         for ( i in 1:permute){
             
@@ -341,8 +336,7 @@ permTest <- function(dataDT,dataD,dataT,restart=NULL,alpha=NULL,lamda=NULL,permu
             S1 <- S1[sample(nrow(S1)),sample(ncol(S1))]
             S2 <- S2[sample(nrow(S2)),sample(ncol(S2))]
             
-            R1 <- biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=restart,
-                            parallel=FALSE,multicores=NULL, verbose=T)
+            R1 <- biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=restart,verbose=T)
             perm[[i]] <- R1
         }
         

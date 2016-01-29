@@ -16,15 +16,12 @@ library(igraph)
 library(gdata)
 library(shiny)
 require(shinysky)
-#library(rcytoscapejs)
 library(data.table)
-## Server for netpredictor
-source('global.R')
 library(networkD3)
 library(visNetwork)
 library(DBI)
 library(RSQLite)
-
+source('global.R')
 set.seed(12345)
 
 #################################################################################
