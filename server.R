@@ -751,7 +751,7 @@ output$moduleplot <- renderVisNetwork({
               pname <-  gsub(" ", "", toupper(protein), fixed = TRUE)
               
               con = dbConnect(SQLite(), dbname="drugbank_prediction.db")
-              pq <-  sprintf("select DRUGBANK_ID,GENE,pvalue,outcome from drugbank_predictions, target_info where drugbank_predictions.UNIPROTID = target_info.UNIPROTID and target_info.GENE =\'%s\'",pname)
+              pq <-  sprintf("select dp.DRUGBANK_ID,dc.NAME,dc.ATC_CODES,dc.CATEGORIES,dc.GROUPS,ti.GENE,dp.pvalue,dp.outcome from drugbank_predictions as dp, target_info as ti , drugbank_categories as dc where dp.UNIPROTID = ti.UNIPROTID and dp.DRUGBANK_ID = dc.DRUGBANK_ID and ti.GENE =\'%s\'",pname)
               t1 = dbGetQuery(con,pq)
               dbDisconnect(con)
               t1
