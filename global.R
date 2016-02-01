@@ -303,11 +303,11 @@ permTest <- function(dataDT,dataD,dataT,restart=NULL,alpha=NULL,lamda=NULL,permu
         for ( i in 1:permute){
             
             ## randomize the matrices 
-            A <- A[sample(nrow(A)),sample(ncol(A))]
+            B <- A[sample(nrow(A)),sample(ncol(A))]
             S1 <- S1[sample(nrow(S1)),sample(ncol(S1))]
             S2 <- S2[sample(nrow(S2)),sample(ncol(S2))]
             
-            R1 <- nbiNet(A,alpha=alpha, lamda=lamda,  s1=S1, s2=S2,format = "matrix")
+            R1 <- nbiNet(B,alpha=alpha, lamda=lamda,  s1=S1, s2=S2,format = "matrix")
             perm[[i]] <- R1
         }
         
@@ -332,11 +332,11 @@ permTest <- function(dataDT,dataD,dataT,restart=NULL,alpha=NULL,lamda=NULL,permu
         for ( i in 1:permute){
             
             ## randomize the matrices 
-            A <- A[sample(nrow(A)),sample(ncol(A))]
+            B <- A[sample(nrow(A)),sample(ncol(A))]
             S1 <- S1[sample(nrow(S1)),sample(ncol(S1))]
             S2 <- S2[sample(nrow(S2)),sample(ncol(S2))]
-            
-            R1 <- biNetwalk(g1,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=restart,verbose=T)
+            g2 = graph.incidence(B)
+            R1 <- biNetwalk(g2,s1=S1,s2=S2,normalise="laplace",dataSeed=NULL,restart=restart,verbose=T)
             perm[[i]] <- R1
         }
         
