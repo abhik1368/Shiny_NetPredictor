@@ -737,21 +737,36 @@ output$moduleplot <- renderVisNetwork({
              drug = input$did
              dname <-  gsub(" ", "", drug, fixed = TRUE)
              con = dbConnect(SQLite(), dbname="drugbank_prediction.db")
-             #alltables = dbListTables(con)
-             dq <-  sprintf("select DRUGBANK_ID,drugbank_predictions.UNIPROTID,pvalue,outcome,NAME,GENE from drugbank_predictions,target_info where drugbank_predictions.UNIPROTID=target_info.UNIPROTID and drugbank_predictions.DRUGBANK_ID=\'%s\'",dname)
-             p1 = dbGetQuery(con,dq)
-             dbDisconnect(con)
-             p1
+             if (input$algo_dtype =='nbi'){
+                 #alltables = dbListTables(con)
+                 dq <-  sprintf("select DRUGBANK_ID,drugbank_predictions.UNIPROTID,pvalue,outcome,NAME,GENE from drugbank_predictions,target_info where drugbank_predictions.UNIPROTID=target_info.UNIPROTID and drugbank_predictions.DRUGBANK_ID=\'%s\'",dname)
+                 p1 = dbGetQuery(con,dq)
+                 dbDisconnect(con)
+                 p1
+             } else if(input$algo_dtype =='rwr'){
+                 dq <-  sprintf("select DRUGBANK_ID,rwr_predictions.UNIPROTID,pvalue,outcome,NAME,GENE from rwr_predictions,target_info where rwr_predictions.UNIPROTID=target_info.UNIPROTID and rwr_predictions.DRUGBANK_ID=\'%s\'",dname)
+                 p1 = dbGetQuery(con,dq)
+                 dbDisconnect(con)
+                 p1
+             }
+           
          } else if(input$search_type=='proteins'){
               input$dSearch
               protein = input$pid
               pname <-  gsub(" ", "", toupper(protein), fixed = TRUE)
-              
-              con = dbConnect(SQLite(), dbname="drugbank_prediction.db")
-              pq <-  sprintf("select dp.DRUGBANK_ID,dc.NAME,dc.ATC_CODES,dc.CATEGORIES,dc.GROUPS,ti.GENE,dp.pvalue,dp.outcome from drugbank_predictions as dp, target_info as ti , drugbank_categories as dc where dp.UNIPROTID = ti.UNIPROTID and dp.DRUGBANK_ID = dc.DRUGBANK_ID and ti.GENE =\'%s\'",pname)
-              t1 = dbGetQuery(con,pq)
-              dbDisconnect(con)
-              t1
+              if (input$algo_dtype == 'nbi'){
+                  con = dbConnect(SQLite(), dbname="drugbank_prediction.db")
+                  pq <-  sprintf("select dp.DRUGBANK_ID,dc.NAME,dc.ATC_CODES,dc.CATEGORIES,dc.GROUPS,ti.GENE,dp.pvalue,dp.outcome from drugbank_predictions as dp, target_info as ti , drugbank_categories as dc where dp.UNIPROTID = ti.UNIPROTID and dp.DRUGBANK_ID = dc.DRUGBANK_ID and ti.GENE =\'%s\'",pname)
+                  t1 = dbGetQuery(con,pq)
+                  dbDisconnect(con)
+                  t1
+              } else if(input$algo_dtype == 'rwr'){
+                  con = dbConnect(SQLite(), dbname="drugbank_prediction.db")
+                  pq <-  sprintf("select dp.DRUGBANK_ID,dc.NAME,dc.ATC_CODES,dc.CATEGORIES,dc.GROUPS,ti.GENE,dp.pvalue,dp.outcome from rwr_predictions as dp, target_info as ti , drugbank_categories as dc where dp.UNIPROTID = ti.UNIPROTID and dp.DRUGBANK_ID = dc.DRUGBANK_ID and ti.GENE =\'%s\'",pname)
+                  t1 = dbGetQuery(con,pq)
+                  dbDisconnect(con)
+                  t1
+                  }
           }
   
       })
