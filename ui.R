@@ -163,9 +163,9 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                        ),
                                       busyIndicator("Calculation In progress",wait = 0),
                                        actionButton('start', label='Run Prediction',
-                                                     class="btn btn-primary"),
+                                                     class="btn btn-primary")
                                       
-                                     render_helpfile("Data Input", "mds/import.md")
+                                     #render_helpfile("Data Input", "mds/import.md")
                                        ),mainPanel( 
                                            tabsetPanel(id='datatabs',
                                                        
@@ -184,7 +184,8 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                                 
                                                                 br(),
                                                                 actionButton('mods', label='Calculate Modules',class="btn btn-primary"),
-                                                                render_helpfile("Network Modules", "mds/module.md"),uiOutput('modules'),
+                                                                #render_helpfile("Network Modules", "mds/module.md"),
+                                                                uiOutput('modules'),
                                                                 dataTableOutput("data_table"),
                                                                 actionButton('shownet', label='Show Network',class="btn btn-primary"),
                                                                 visNetworkOutput("moduleplot",height="550px")),
@@ -245,8 +246,8 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                  sliderInput("pdcncLambda", "Lambda", value=0.5, min=0, max=1,width ='200px')),
                                 busyIndicator("Calculation In progress",wait = 0),
                                 actionButton('submit', label='Submit',
-                                             class="btn btn-primary"),
-                                render_helpfile("Advanced Analysis", "mds/analysis.md")
+                                             class="btn btn-primary")
+                               # render_helpfile("Advanced Analysis", "mds/analysis.md")
                             ),mainPanel(tabPanel('Statistical Analysis',
                                                      h3(textOutput("Analysis")),
                                                      dataTableOutput("advTable"),
@@ -290,8 +291,8 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                  sliderInput("sgrwrRestart", "Restart", value=0.8, min=0, max=1,width ='200px')),
                                 busyIndicator("Calculation In progress",wait = 0),
                                 actionButton('sigSubmit', label='Submit',
-                                             class="btn btn-primary"),
-                                render_helpfile("Significance Analysis", "mds/significance.md")
+                                             class="btn btn-primary")
+                                #render_helpfile("Significance Analysis", "mds/significance.md")
                    ),mainPanel(tabPanel('Permutation Analysis',
                                         h3(textOutput("Permutation Analysis")),
                                         dataTableOutput("sigTable"),
@@ -318,13 +319,17 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                               </style>'),
                                          radioButtons(inputId="search_type", 
                                                       label="",
-                                                      choices=c("Search Drugs"="drugs", "Search Porteins"="proteins"),
+                                                      choices=c("Search Drugs"="drugs", "Search Proteins"="proteins"),
                                                       selected="", inline=FALSE),
                                          conditionalPanel(condition = "input.search_type == 'drugs'",
                                          textInput("did", "Drugbank ID:", width = NULL)),
                                          conditionalPanel(condition = "input.search_type == 'proteins'",
                                                           textInput("pid", "Hugo Gene:", width = NULL)),
                                          busyIndicator("Search In progress",wait = 0),
+                                         radioButtons(inputId="algo_dtype", 
+                                                      label="Algorithm Type",
+                                                      choices=c("NBI"="nbi", "RWR"="rwr"),
+                                                      selected="nbi", inline=FALSE),
                                          actionButton('dSearch', label='Submit',
                                                       class="btn btn-primary")
                                          
