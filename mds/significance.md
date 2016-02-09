@@ -14,8 +14,10 @@ Perform random permutations of the network. As the number of random permutations
 computing time increases 
 
 * **Keep Significant links of pvalue**
-
 set the threshold for links to kep in the results table.
+
+
+
 
 
 
