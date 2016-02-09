@@ -10,35 +10,32 @@
 # GNU Affero General Public License for more details. 
 #################################################################################
 ## INSTALLATION OF PACKAGES FIRST
-<<<<<<< HEAD
-# list.of.packages <- c("devtools","DBI","RSQLite","shinyGridster","shinyBS","netpredictor","lpbrim","ShinySky","shinyjs","shinythemes","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
-=======
-# list.of.packages <- c("devtools","DBI","RSQLite","doParallel","foreach","shinyGridster","shinyBS","netpredictor","lpbrim","ShinySky","shinyjs","shinythemes","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
->>>>>>> origin/master
-# 
-# packages.auto <- function(x) { 
-#     x <- as.character(substitute(x)) 
-#     if(isTRUE(x %in% .packages(all.available=TRUE))) { 
-#         eval(parse(text = sprintf("require(\"%s\")", x)))
-#     } else { 
-#         #update.packages(ask= FALSE) #update installed packages.
-#         eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE)", x)))
-#     }
-#     if(isTRUE(x %in% .packages(all.available=TRUE))) { 
-#         eval(parse(text = sprintf("require(\"%s\")", x)))
-#     } else {
-#         
-#         devtools::install_github("abhik1368/netpredictor")
-#         devtools::install_github("AnalytixWare/ShinySky")
-#         devtools::install_github("PoisotLab/lpbrim")
-#         devtools::install_github("shiny-gridster", "wch")
-#         devtools::install_github("ebailey78/shinyBS")
-# 
-#         
-#     }
-# }
-# 
-# packages.auto(list.of.packages)
+list.of.packages <- c("devtools","DBI","RSQLite","shinyGridster","shinyBS","netpredictor","lpbrim","ShinySky","shinyjs","shinythemes","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
+
+
+packages.auto <- function(x) { 
+    x <- as.character(substitute(x)) 
+    if(isTRUE(x %in% .packages(all.available=TRUE))) { 
+        eval(parse(text = sprintf("require(\"%s\")", x)))
+    } else { 
+        #update.packages(ask= FALSE) #update installed packages.
+        eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE)", x)))
+    }
+    if(isTRUE(x %in% .packages(all.available=TRUE))) { 
+        eval(parse(text = sprintf("require(\"%s\")", x)))
+    } else {
+        
+        devtools::install_github("abhik1368/netpredictor")
+        devtools::install_github("AnalytixWare/ShinySky")
+        devtools::install_github("PoisotLab/lpbrim")
+        devtools::install_github("shiny-gridster", "wch")
+        devtools::install_github("ebailey78/shinyBS")
+
+        
+    }
+}
+
+packages.auto(list.of.packages)
 #################################################################################
 
 #################################################################################
@@ -51,6 +48,7 @@ require(shinysky)
 library(reshape2)
 library(lpbrim)
 library(rlist)
+library(doParallel)
 set.seed(12345)
 #################################################################################
 
