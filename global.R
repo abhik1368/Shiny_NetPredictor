@@ -360,3 +360,34 @@ permTest <- function(dataDT,dataD,dataT,restart=NULL,alpha=NULL,lamda=NULL,permu
 
 
 }
+
+## Get the GO data (BP, CC , MF) for the given set of genes
+getGOdata <- function(geneID,level) {
+    gbp <- groupGO(gene     = as.character(geneID),
+                   organism = "human",
+                   ont      = "BP",
+                   level    = as.integer(level),
+                   readable = TRUE)
+    data <- summary(gbp)
+    bp <- data[data$Count > 0,]
+    bp$type <- "BP"
+    
+    gcc <- groupGO(gene     = as.character(geneID),
+                   organism = "human",
+                   ont      = "CC",
+                   level    = as.integer(level),
+                   readable = TRUE)
+    data <- summary(gcc)
+    cc <- data[data$Count > 0,]
+    cc$type <- "CC"
+    gmf <- groupGO(gene     = as.character(geneID),
+                   organism = "human",
+                   ont      = "MF",
+                   level    = as.integer(level),
+                   readable = TRUE)
+    data <- summary(gmf)
+    mf <- data[data$Count > 0,]
+    mf$type <- "MF"
+    fgo <- rbind(bp,cc,mf)
+    return (fgo)
+}

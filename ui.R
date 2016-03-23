@@ -1,4 +1,4 @@
-# Copyright (C) 2015 Abhik Seal <abhik1368@gmail.com>
+# Copyright (C) 2016 Abhik Seal <abhik1368@gmail.com>
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
@@ -19,6 +19,17 @@ source("help.R")
 library(visNetwork)
 library(shinyGridster)
 #################################################################################
+
+inputTextarea <- function(inputId, value="", nrows, ncols) {
+    tagList(
+        singleton(tags$head(tags$script(src = "textarea.js"))),
+        tags$textarea(id = inputId,
+                      class = "inputtextarea",
+                      rows = nrows,
+                      cols = ncols,
+                      as.character(value))
+    )
+}
 
 shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", height = 32, width = 35) ,id ="bar",
                    tabPanel(icon("home",lib = "glyphicon"),
@@ -338,7 +349,37 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                    dataTableOutput("dtable"),
                                    downloadButton("dBdownload", "Download results as csv file")
                                    ))),
-             tabPanel("About", icon= icon("info-circle"),
+              tabPanel("Ontology & Pathway search" , icon = icon("tasks"),
+                       tags$head(
+                           tags$style(HTML("
+                                           h1 {
+                                           font-family: 'Verdana', cursive;
+                                           line-height: 1.1;
+                                           font-size : 16px;
+                                           color: #4863A0
+                                           }"))),
+                            headerPanel("Search Gene Ontology and Pathway information"),br(),
+                            sidebarPanel(width = 3,
+                                    HTML('<style type="text/css">
+                                         .well { background-color: #ffffff; }
+                                         </style>'),
+                                    inputTextarea('selectGene', '',8,15 ),
+                                    radioButtons(inputId="gopath", 
+                                                 label="Select Ontology or Pathway",
+                                                 choices=c("Gene Ontology"="go","Pathway Enrichment"="pathway"),
+                                                 selected="", inline=FALSE),
+                                    conditionalPanel(condition = "input.gopath=='go'",
+                                                     textInput("level", label = "Enter GO Level", value = 3)),
+                                    busyIndicator("Search In progress",wait = 0),
+                                    actionButton('genelist', label='Submit',
+                                                 class="btn btn-primary")
+                                    
+                            ),mainPanel(tabPanel('Ontology Pathway',
+                                                 
+                                                 dataTableOutput("genePathway"),
+                                                 downloadButton("Godownload", "Download results as csv file")
+                            ))), 
+              tabPanel("About", icon= icon("info-circle"),
                       HTML(markdown::markdownToHTML("mds/about.md", fragment.only=TRUE, options=c("")))
              )
                       

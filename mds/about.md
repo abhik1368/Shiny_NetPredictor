@@ -8,8 +8,8 @@
 * **Version:** 1.0.1
 * ![Status](http://img.shields.io/badge/status-In_development_%28UNSTABLE%29-red.svg?style=flat)
 * [![License](http://img.shields.io/badge/license-AGPL--3-orange.svg?style=flat)](https://www.gnu.org/licenses/agpl-3.0.html)
-* **Source:** [GitHub](https://github.com/abhik1368/netpredicter)
-* **Problems:** [Bug reports and feature reqests](https://github.com/abhik1368/netpredicter/issues)
+* **Source:** [GitHub](https://github.com/abhik1368/Shiny_NetPredictor)
+* **Problems:** [Bug reports and feature reqests](https://github.com/abhik1368/Shiny_NetPredictor/issues)
 * **Authors:** [Abhik Seal](https://www.linkedin.com/in/abseal)
 
 # Start Prediction
@@ -23,15 +23,17 @@ the following tabs won't work.
 
 * **Drug-Target Biparite Network :**
 Click the 'Browse' button to select your local Drug Target binary matrix csv file you wish to
-upload .  The file should end in the extension `.csv`.
+upload . The matrix rows should be protein names and columns should be drugnames. The file should end in the extension `.csv`.
 
 * **Drug Similarity Matrix :**.
 Click the 'Browse' button to select your local Drug Similarity Matrix csv file you wish to
-upload .  The file should end in the extension `.csv`.
+upload . The file should end in the extension `.csv`.
 
 * **Target Similarity Matrix :**
 Click the 'Browse' button to select your local Target Similarity Matrix csv file you wish to
 upload .  The file should end in the extension `.csv`.
+
+The count of drugs and targets should match all the given three matrices. Also the order in which drugnames and proteins are given in the Drug-Target bipartite network this should be maintained drug-similairty matrix and Target similarity matrix, otherwise the results will be misleading.
 
 #### Example Data
 
@@ -65,6 +67,7 @@ and Media Technologies, 5, 184–192.
 
 (2) Barber, M. (2007) Modularity and community detection in bipartite networks. Physical Review E, 76, 066102.
 
+(3)[Optimization of bipartite modularity using LP-BRIM](https://github.com/PoisotLab/lpbrim)
 
 # Statistical Analysis
 
@@ -86,11 +89,15 @@ Perform random permutations of the network. As the number of random permutations
 computing time increases 
 
 * **Keep Significant links of pvalue :**
-set the threshold for links to kep in the results table.
+set the threshold for links to keep in the results table.
 
 # Search Drugbank 
 
 This tab allows users to search predicted drugbank interactions using either Network based inference(NBI) or Random walk with restart (RWR). The tab allows users to search by drugbank id and proteins by hugo gene names. The data is accessed using RSQLite package. The dat table list the drugbank id, uniprot id,protein names,significant values, ATC Codes, Drug Categories, predicted and true interactions. 
+
+# Ontology and pathway search
+
+This tab allows users to identify functional characteritics of the predicted and true interactions using gene ontology(BP,CC,MF) features.Users can select gene ontology with the depth of the level or use pathway to get enrich pathways for the given set of genes. The textbox accepts (,) separated hugo gene names. 
 
 ### Acknowledgements
 
@@ -101,6 +108,7 @@ acknowledge these and thank the authors for their work:
 * [shiny](http://cran.r-project.org/web/packages/shiny/index.html), [markdown](http://cran.r-project.org/web/packages/markdown/index.html), and 
 * [RRO Open](https://mran.revolutionanalytics.com/open/),[Netpredictor](https://github.com/abhik1368/netpredicter),[igraph](https://cran.r-project.org/web/packages/igraph/index.html)
 * Some amazing cool shiny packages like [shinysky](https://github.com/AnalytixWare/ShinySky),[shinyBS](https://github.com/ebailey78/shinyBS),[shinythemes](https://github.com/rstudio/shinythemes)
+* [Netpredictor](https://github.com/abhik1368/netpredictor)
 * Some javascript packages such as [visNetwork](http://dataknowledge.github.io/visNetwork/),[data.tables](https://cran.r-project.org/web/packages/data.table/index.html)
 
 

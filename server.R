@@ -21,6 +21,9 @@ library(networkD3)
 library(visNetwork)
 library(DBI)
 library(RSQLite)
+library(clusterProfiler)
+library(ReactomePA)
+library(biomaRt)
 source('global.R')
 set.seed(12345)
 
@@ -769,6 +772,57 @@ output$moduleplot <- renderVisNetwork({
       
       content = function(file) {
           write.table(dResult(), file, row.names=FALSE, quote=FALSE, sep="\t")
+          
+      })
+  
+  ## Gene Ontology and pathway search.
+  dGoPath <- reactive({ 
+      if (input$genelist <= 0){
+          return(NULL)
+      } 
+      input$genelist
+      dresults <- isolate({
+          if(input$gopath=='go'){
+              input$genelist
+              glist <- input$selectGene
+              gname <-  gsub(" ", "",glist, fixed = TRUE)
+              names <- unlist(strsplit(gname,","))
+              print (names)
+              human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
+              mapTab <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = names, mart = human, uniqueRows=FALSE)
+              geneID <- mapTab$entrezgene
+              
+              fgo <- getGOdata(geneID,input$level)
+              fgo
+              
+          } else if(input$gopath=='pathway'){
+              input$genelist
+              glist <- input$selectGene
+              gname <-  gsub(" ", "",glist, fixed = TRUE)
+              names <- unlist(strsplit(gname,","))
+              print (names)
+              human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
+              mapTab <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = names, mart = human, uniqueRows=FALSE)
+              geneID <- mapTab$entrezgene
+              x <- enrichPathway(gene=as.character(geneID),pvalueCutoff=0.05, readable=T)
+              path <- summary(x)
+              p <- path[path$Count > 0,]
+              p
+          }
+          
+      })
+  
+  })
+  output$genePathway <-  renderDataTable({
+      dGoPath()
+  })
+  
+  output$Godownload <- downloadHandler(
+      
+      filename = function() { paste("OntoPath_result.txt") },
+      
+      content = function(file) {
+          write.table(dGoPath(), file, row.names=FALSE, quote=FALSE, sep="\t")
           
       })
  #addPopover(session, "Result", "Predicted Results", placement = "top",content = paste0("Shows the predicted results in a data table format"), trigger = 'click')
