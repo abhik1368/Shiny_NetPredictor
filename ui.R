@@ -188,9 +188,13 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                                 fluidRow(
                                                                     column(width = 5, chartOutput("countProteins","polycharts")),
                                                                     column(width = 6, offset = 1, chartOutput("countDrugs","polycharts"))
-                                                                )),
-                                                                #showOutput("countProteins","polycharts"),
-                                                                #showOutput("countDrugs","polycharts")),
+                                                                ),
+                                                       fluidRow(
+                                                          column(width = 5, chartOutput("btwProteins","polycharts")),
+                                                          column(width = 6, offset = 1, chartOutput("btwDrugs","polycharts"))
+                                                      )),
+#                                                                 showOutput("btwProteins","polycharts"),
+#                                                                 showOutput("btwDrugs","polycharts")),
                                                             
                                                        tabPanel("Network Modules",
                                                                 

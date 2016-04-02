@@ -125,7 +125,9 @@ totModules <- reactive({
      results
  })
 
-## This for the drugs 
+#####################################################################################
+## Calculation of counts of Proteins each Drug is having
+#####################################################################################
 topDrugs <- reactive({
      
     if (input$netproperty <= 0){
@@ -144,7 +146,7 @@ topDrugs <- reactive({
                 topRows$Drugs <- row.names(topRows)
                 res <- topRows[order(-topRows$count),][1:20,]
                 rownames(res)<- NULL
-                plt <- rPlot(x = list(var= "Drugs",sort = "count"), y="count",data=res,type="bar") 
+                plt <- rPlot(x = list(var= "Drugs",sort = "count"),color= list(const='red'), y="count",data=res,type="bar") 
                 plt$addParams(width = 600, height = 300,title = "Top 20 Drugs interaction counts")
                 plt 
 
@@ -159,12 +161,18 @@ topDrugs <- reactive({
                 topRows$Drugs <- row.names(topRows)
                 res <- topRows[order(-topRows$count),][1:15,]
                 rownames(res)<- NULL
-                res
+                plt1 <- rPlot(x = list(var= "Drugs",sort = "count"),color= list(const='red'), y="count",data=res,type="bar") 
+                plt1$addParams(width = 600, height = 300,title = "Top 20 Drugs interaction counts")
+                plt1 
             }
             
             })
         results
  })
+
+#####################################################################################
+## Calculation of counts of Drugs each Protein is having
+#####################################################################################
  
 topProteins <- reactive({
     
@@ -180,19 +188,14 @@ topProteins <- reactive({
             exdata <- paste(dset,".rda",sep="")
             load(exdata)
             dt <- t(adjm)
-            ## This for the drugs
             topRows <- data.frame(colSums(dt))
             colnames(topRows)[1] <- "count"
             topRows$Proteins <- row.names(topRows)
             res <- topRows[order(-topRows$count),][1:20,]
-            #d <- cbind(topRows,row.names(res))
-            #colnames(res)[2] <- "Names"
             rownames(res)<- NULL
-            print(head(res))
-            plt <- rPlot(x = list(var= "Proteins",sort = "count"), y="count",data=res,type="bar") 
-            
-            plt$addParams(width = 600, height = 300,title = "Top 20 proteins interaction counts")
-            plt             
+            plt2 <- rPlot(x = list(var= "Proteins",sort = "count"), y="count",data=res,type="bar") 
+            plt2$addParams(width = 600, height = 300,title = "Top 20 proteins interaction counts")
+            plt2             
         } else if(input$data_input_type=="custom") {
             if (is.null(input$dt_file))
                 return(NULL)
@@ -202,16 +205,131 @@ topProteins <- reactive({
             topRows <- data.frame(rowSums(dataDT))
             colnames(topRows)[1] <- "count"
             topRows$Proteins <- row.names(topRows)
-            res <- topRows[order(-topRows$count),][1:15,]
+            res <- topRows[order(-topRows$count),][1:20,]
             rownames(res)<- NULL
-            res
+            plt2 <- rPlot(x = list(var= "Proteins",sort = "count"),y="count",data=res,type="bar") 
+            plt2$addParams(width = 600, height = 300,title = "Top 20 proteins interaction counts")
+            plt2 
         }
         
     })
     results
 })
 
+#####################################################################################
+## Calculation of Betweenness of Drugs
+#####################################################################################
 
+betweennessDrugs <- reactive({
+    
+    if (input$netproperty <= 0){
+        return(NULL)
+    } 
+    
+    # Use isolate() to avoid dependency on input$obs
+    results <- isolate({
+        input$netproperty
+        if(input$data_input_type=="example"){
+            dset <- input$datasets
+            exdata <- paste(dset,".rda",sep="")
+            load(exdata)
+            data <- t(adjm)
+            net2 <- graph_from_incidence_matrix(data)
+            net2.bp <- bipartite.projection(net2)
+            btw1 <- betweenness(net2.bp[[1]], directed=F, weights=NA)
+            btwDF <- data.frame(btw1)
+            btwDrugs <- cbind(btwDF,rownames(btwDF))
+            colnames(btwDrugs)[1] <- "Betweenness" 
+            colnames(btwDrugs)[2] <- "Proteins"
+            rownames(btwDrugs) <- NULL
+            res <- btwDrugs[order(-btwDrugs$Betweenness),][1:20,]
+            print(head(res))
+            
+            plt3 <- rPlot(x = list(var= "Proteins",sort = "Betweenness"),color= list(const='red'), y="Betweenness",data=res,type="bar")
+            plt3$addParams(width = 600, height = 300,title = "Top 20 betweenness Drugs")
+            plt3             
+        } else if(input$data_input_type=="custom") {
+            if (is.null(input$dt_file))
+                return(NULL)
+            
+            DTFile <- input$dt_file
+            dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
+            net2 <- graph_from_incidence_matrix(dataDT)
+            net2.bp <- bipartite.projection(net2)
+            btw1 <- betweenness(net2.bp[[1]], directed=F, weights=NA)
+            btwDF <- data.frame(btw1)
+            btwDrugs <- cbind(btwDF,rownames(btwDF))
+            colnames(btwDrugs)[1] <- "Betweenness" 
+            colnames(btwDrugs)[2] <- "Drugs"
+            rownames(btwDrugs) <- NULL
+            res <- btwDrugs[order(-btwDrugs$Betweenness),][1:20,]
+            plt3 <- rPlot(x = list(var= "Proteins",sort = "Betweenness"),color= list(const='red') , y="Betweenness",data=res,type="bar") 
+            plt3$addParams(width = 600, height = 300,title = "Top 20 betweenness Drugs")
+            plt3 
+        }
+        
+    })
+    results
+})
+
+#####################################################################################
+## Calculation of Betweenness of Proteins
+#####################################################################################
+
+betweennessProteins <- reactive({
+    
+    if (input$netproperty <= 0){
+        return(NULL)
+    } 
+    # Use isolate() to avoid dependency on input$obs
+    results <- isolate({
+        input$netproperty
+        if(input$data_input_type=="example"){
+            dset <- input$datasets
+            exdata <- paste(dset,".rda",sep="")
+            load(exdata)
+            data <- t(adjm)
+            net2 <- graph_from_incidence_matrix(data)
+            net2.bp <- bipartite.projection(net2)
+            btw1 <- betweenness(net2.bp[[2]], directed=F, weights=NA)
+            btwDF <- data.frame(btw1)
+            
+            btwProteins <- cbind(btwDF,rownames(btwDF))
+            colnames(btwProteins)[1] <- "Betweenness" 
+            colnames(btwProteins)[2] <- "Drugs"
+            rownames(btwProteins) <- NULL
+            print(head(res))
+            res <- btwProteins[order(-btwProteins$Betweenness),][1:20,]
+            plt4 <- rPlot(x = list(var= "Drugs",sort = "Betweenness"), y="Betweenness",data=res,type="bar")
+            plt4$addParams(width = 600, height = 300,title = "Top 20 High Betweenness Proteins")
+            plt4 
+        } else if(input$data_input_type=="custom") {
+            if (is.null(input$dt_file))
+                return(NULL)
+            
+            DTFile <- input$dt_file
+            dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
+            net2 <- graph_from_incidence_matrix(dataDT)
+            net2.bp <- bipartite.projection(net2)
+            btw1 <- betweenness(net2.bp[[1]], directed=F, weights=NA)
+            btwDF <- data.frame(btw1)
+            btwProteins <- cbind(btwDF,rownames(btwDF))
+            colnames(btwProteins)[1] <- "Betweenness" 
+            colnames(btwProteins)[2] <- "Drugs"
+            rownames(btwProteins) <- NULL
+            res <- btwProteins[order(-btwProteins$Betweenness),][1:20,]
+            plt4 <- rPlot(x = list(var= "Drugs",sort = "Betweenness"), y="Betweenness",data=res,type="bar")
+            plt4$addParams(width = 600, height = 300,title = "Top 20 High Betweenness Proteins")
+            plt4  
+        }
+        
+    })
+    results
+})
+
+#####################################################################################
+## Output of 4 types of histograms in Network properties tab
+#####################################################################################
 
 
 ## Output properties table 
@@ -229,6 +347,21 @@ output$countDrugs <- renderChart2({
 output$countProteins <- renderChart2({
     topProteins()
 })
+
+## Output count distribution of proteins
+output$btwProteins <- renderChart2({
+    betweennessProteins()
+})
+
+
+output$btwDrugs <- renderChart2({
+    betweennessDrugs()
+})
+
+
+#####################################################################################
+## Calculation of modules using lpbrim
+#####################################################################################
 
 ## Get the count of modules
 
@@ -249,14 +382,19 @@ full_modules <- reactive({
     return(mod)
 })
 
+#####################################################################################
 ## Update dynamically the list of modules
+#####################################################################################
+
 output$modules = renderUI({
     
     selectInput('module', 'Modules', tot_modules())
 })
 
+#####################################################################################
+## Output the data table of modules
+#####################################################################################
 
-# Output the data table of modules
 data_table <- reactive({
     # If missing input, return to avoid error later in function
     if(is.null(input$module))
@@ -285,6 +423,9 @@ output$data_table <- renderDataTable( {
     columnDefs = list(list(width = '50px', targets = "_all")))
 )
 
+#####################################################################################
+## Generate the module network using visNetwork
+#####################################################################################
 
 modnetwork <- reactive({
     
@@ -329,6 +470,10 @@ modnetwork <- reactive({
     netResult
 })
 
+#####################################################################################
+## Send it to output
+#####################################################################################
+
 
 output$moduleplot <- renderVisNetwork({
     modnetwork()
@@ -341,6 +486,11 @@ output$moduleplot <- renderVisNetwork({
                     styleclass = "success")
  })
 
+ 
+ #####################################################################################
+ ## Calculate prediction models using different algorithms
+ #####################################################################################
+ 
  
  Result <- reactive({
      
@@ -484,6 +634,10 @@ output$moduleplot <- renderVisNetwork({
 #  })
 #  
  
+ #####################################################################################
+ ## Generate network at networkplot tab
+ #####################################################################################
+ 
  output$networkplot <- renderVisNetwork({
      
      if (input$start <= 0){
@@ -513,6 +667,10 @@ output$moduleplot <- renderVisNetwork({
      netResult
  })
  
+ #####################################################################################
+ ## Download options for Network
+ #####################################################################################
+ 
  
  output$graphResult <- downloadHandler(
      
@@ -529,7 +687,10 @@ output$moduleplot <- renderVisNetwork({
      })
 
  
- ## For the Statistical Analysis
+ #####################################################################################
+ ## Function Advanced Analysis for statistical metrics
+ #####################################################################################
+ 
  
  advancedResult <- reactive({ 
      
@@ -636,7 +797,9 @@ output$moduleplot <- renderVisNetwork({
          }
      })
      
-     
+#####################################################################################
+## Function Significance analysis tab
+#####################################################################################    
      
      
     ## This function for the significance results tab 
@@ -708,7 +871,11 @@ output$moduleplot <- renderVisNetwork({
          } 
            
         })
-     
+
+#####################################################################################
+## Output advanced analysis tab results
+#####################################################################################
+         
  ## output table for the navbarmenu tabs    
  output$advTable <-  renderDataTable(myresult$df)
  
@@ -736,7 +903,9 @@ output$moduleplot <- renderVisNetwork({
       })
   
   
-  ## Drugbank Tabs
+#####################################################################################
+## Function Drugbank Search tab
+#####################################################################################
   
   dResult <- reactive({ 
       if (input$dSearch <= 0){
@@ -784,8 +953,11 @@ output$moduleplot <- renderVisNetwork({
           write.table(dResult(), file, row.names=FALSE, quote=FALSE, sep="\t")
           
       })
+
+#####################################################################################
+## Gene Ontology and pathway search.
+#####################################################################################  
   
-  ## Gene Ontology and pathway search.
   dGoPath <- reactive({ 
       if (input$genelist <= 0){
           return(NULL)
@@ -823,6 +995,11 @@ output$moduleplot <- renderVisNetwork({
       })
   
   })
+  
+  #####################################################################################
+  ## Gene Ontology and pathway search results download
+  #####################################################################################  
+  
   output$genePathway <-  renderDataTable({
       dGoPath()
   })
@@ -835,8 +1012,5 @@ output$moduleplot <- renderVisNetwork({
           write.table(dGoPath(), file, row.names=FALSE, quote=FALSE, sep="\t")
           
       })
- #addPopover(session, "Result", "Predicted Results", placement = "top",content = paste0("Shows the predicted results in a data table format"), trigger = 'click')
- #addPopover(session, "prop_table", "Network Properties", placement = "top",content = paste0("Represents the current selected network properties"), trigger = 'click')
- #addPopover(session, "advTable", "Network plot", placement = "top",content = paste0("This panel shows the predicted values"), trigger = 'click')
  
 })
