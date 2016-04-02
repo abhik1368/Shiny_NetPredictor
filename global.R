@@ -34,8 +34,18 @@
 #         
 #     }
 # }
-# 
+# bio.packages <- c("biomaRt","ReactomePA","clusterProfiler")
+
+# bioconduct.auto <- function(x) { 
+#     x <- as.character(substitute(x)) 
+#     if(isTRUE(x %in% .packages(all.available=TRUE))) { 
+#         eval(parse(text = sprintf("require(\"%s\")", x)))
+#     } else { 
+#         #update.packages(ask= FALSE) #update installed packages.
+#         eval(parse(text = sprintf("biocLite(\"%s\", dependencies = TRUE)", x)))
+#     }
 # packages.auto(list.of.packages)
+# bioconduct.auto(bio.packages)
 #################################################################################
 
 #################################################################################
