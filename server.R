@@ -20,6 +20,7 @@ library(data.table)
 library(networkD3)
 library(visNetwork)
 library(DBI)
+library(rCharts)
 library(RSQLite)
 library(clusterProfiler)
 library(ReactomePA)
@@ -141,9 +142,12 @@ topDrugs <- reactive({
                 topRows <- data.frame(rowSums(dt))
                 colnames(topRows)[1] <- "count"
                 topRows$Drugs <- row.names(topRows)
-                res <- topRows[order(-topRows$count),][1:15,]
+                res <- topRows[order(-topRows$count),][1:20,]
                 rownames(res)<- NULL
-                res 
+                plt <- rPlot(x = list(var= "Drugs",sort = "count"), y="count",data=res,type="bar") 
+                plt$addParams(width = 600, height = 300,title = "Top 20 Drugs interaction counts")
+                plt 
+
             } else if(input$data_input_type=="custom") {
                 if (is.null(input$dt_file))
                     return(NULL)
@@ -180,9 +184,15 @@ topProteins <- reactive({
             topRows <- data.frame(colSums(dt))
             colnames(topRows)[1] <- "count"
             topRows$Proteins <- row.names(topRows)
-            res <- topRows[order(-topRows$count),][1:15,]
+            res <- topRows[order(-topRows$count),][1:20,]
+            #d <- cbind(topRows,row.names(res))
+            #colnames(res)[2] <- "Names"
             rownames(res)<- NULL
-            res 
+            print(head(res))
+            plt <- rPlot(x = list(var= "Proteins",sort = "count"), y="count",data=res,type="bar") 
+            
+            plt$addParams(width = 600, height = 300,title = "Top 20 proteins interaction counts")
+            plt             
         } else if(input$data_input_type=="custom") {
             if (is.null(input$dt_file))
                 return(NULL)
@@ -211,12 +221,12 @@ output$prop_table <- renderTable({
  })
  
 ## Output count distribution of drugs
-output$countDrugs <- renderTable({
+output$countDrugs <- renderChart2({
     topDrugs()
 })
 
 ## Output count distribution of proteins
-output$countProteins <- renderTable({
+output$countProteins <- renderChart2({
     topProteins()
 })
 

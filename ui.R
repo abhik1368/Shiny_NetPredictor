@@ -15,9 +15,10 @@ library(shinythemes)
 library(shiny)
 library(shinysky)
 library(shinyjs)
+library(rCharts)
 source("help.R")
 library(visNetwork)
-library(shinyGridster)
+#library(shinyGridster)
 #################################################################################
 
 inputTextarea <- function(inputId, value="", nrows, ncols) {
@@ -183,14 +184,14 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                        tabPanel("Network Properties",br(),
                                                                 actionButton('netproperty', label='Calculate Properties',class="btn btn-primary"),
                                                                 h3(textOutput("Data Summary", container = span)),
-                                                                gridster(width = 250, height = 250,gridsterItem(row =1, col = 1, sizex = 1, sizey = 1, class = 'widget',
-                                                                             uiOutput("prop_table")
-                                                                ),gridsterItem(row =1, col = 2, sizex = 1, sizey = 1, class = 'widget',
-                                                                               uiOutput("countDrugs")
-                                                                ),gridsterItem(row =1, col = 3, sizex = 1, sizey = 1, class = 'widget',
-                                                                               uiOutput("countProteins"))
-                                                                )
-                                                                ),
+                                                                uiOutput("prop_table"),
+                                                                fluidRow(
+                                                                    column(width = 5, chartOutput("countProteins","polycharts")),
+                                                                    column(width = 6, offset = 1, chartOutput("countDrugs","polycharts"))
+                                                                )),
+                                                                #showOutput("countProteins","polycharts"),
+                                                                #showOutput("countDrugs","polycharts")),
+                                                            
                                                        tabPanel("Network Modules",
                                                                 
                                                                 br(),
