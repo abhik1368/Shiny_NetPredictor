@@ -22,7 +22,7 @@ This will not install RRO package in your machine . For fast computations instal
 ![Network Properties](figures/Fig1.png)
 ![Network Plots](figures/Fig2.png)
 ![DrugBank Predictions](figures/Fig3.png)
-![Ontology and Pathway Search](figures/Fig5.png)
+![Ontology and Pathway Search](figures/Fig4.png)
 
 ### Acknowledgements
 
