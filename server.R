@@ -455,7 +455,7 @@ modnetwork <- reactive({
         id=seq(0,length(nodes)-1,1)
         label=nodes
         print (dim(el))
-        nodeData <- data.frame(id ,label,group=c(rep("Drugs",group1),rep("Proteins",group2)),stringsAsFactors=FALSE)
+        nodeData <- data.frame(id ,label,group=c(rep("Proteins",group1),rep("Drugs",group2)),stringsAsFactors=FALSE)
         colnames(el)[1] <- "from"
         colnames(el)[2] <- "to"
         edgeList <- el[, c("from","to")]

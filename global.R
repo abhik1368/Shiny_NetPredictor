@@ -10,42 +10,43 @@
 # GNU Affero General Public License for more details. 
 #################################################################################
 ## INSTALLATION OF PACKAGES FIRST
-list.of.packages <- c("devtools","DBI","RSQLite","shinyBS","doParallel","foreach","netpredictor","lpbrim","shinysky","shinyjs","shinythemes","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
-
-
- packages.auto <- function(x) { 
-    x <- as.character(substitute(x)) 
-    if(isTRUE(x %in% .packages(all.available=TRUE))) { 
-        eval(parse(text = sprintf("require(\"%s\")", x)))
-     } else { 
-         eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE)", x)))
-    }
-     if(isTRUE(x %in% .packages(all.available=TRUE))) { 
-        eval(parse(text = sprintf("require(\"%s\")", x)))
-     } else {
-         
-        devtools::install_github("abhik1368/netpredictor")
-        devtools::install_github("AnalytixWare/ShinySky")
-         devtools::install_github("PoisotLab/lpbrim")
-         devtools::install_github("shiny-gridster", "wch")
-         devtools::install_github("ebailey78/shinyBS")
-
-         
-    }
-}
- bio.packages <- c("biomaRt","ReactomePA","clusterProfiler")
-
- bioconduct.auto <- function(x) { 
-    x <- as.character(substitute(x)) 
-    if(isTRUE(x %in% .packages(all.available=TRUE))) { 
-         eval(parse(text = sprintf("require(\"%s\")", x)))
-     } else { 
-        #update.packages(ask= FALSE) #update installed packages.
-        eval(parse(text = sprintf("biocLite(\"%s\", dependencies = TRUE)", x)))
-     }
- }
- packages.auto(list.of.packages)
- bioconduct.auto(bio.packages)
+# list.of.packages <- c("devtools","DBI","RSQLite","shinyBS","doParallel","foreach","netpredictor","lpbrim","shinysky","shinyjs","shinythemes","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
+# 
+# 
+#  packages.auto <- function(x) { 
+#     x <- as.character(substitute(x)) 
+#     if(isTRUE(x %in% .packages(all.available=TRUE))) { 
+#         eval(parse(text = sprintf("require(\"%s\")", x)))
+#      } else { 
+#          eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE)", x)))
+#     }
+#      if(isTRUE(x %in% .packages(all.available=TRUE))) { 
+#         eval(parse(text = sprintf("require(\"%s\")", x)))
+#      } else {
+#          
+#         devtools::install_github("abhik1368/netpredictor")
+#         devtools::install_github("AnalytixWare/ShinySky")
+#          devtools::install_github("PoisotLab/lpbrim")
+#          devtools::install_github("shiny-gridster", "wch")
+#          devtools::install_github("ebailey78/shinyBS")
+# 
+#          
+#     }
+# }
+#  bio.packages <- c("biomaRt","ReactomePA","clusterProfiler")
+# 
+#  bioconduct.auto <- function(x) {
+#     source("https://bioconductor.org/biocLite.R")
+#     x <- as.character(substitute(x)) 
+#     if(isTRUE(x %in% .packages(all.available=TRUE))) { 
+#          eval(parse(text = sprintf("require(\"%s\")", x)))
+#      } else { 
+#         #update.packages(ask= FALSE) #update installed packages.
+#         eval(parse(text = sprintf("biocLite(\"%s\", dependencies = TRUE)", x)))
+#      }
+#  }
+#  packages.auto(list.of.packages)
+#  bioconduct.auto(bio.packages)
 #################################################################################
 
 #################################################################################
