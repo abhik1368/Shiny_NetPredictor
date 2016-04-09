@@ -10,7 +10,7 @@
 # GNU Affero General Public License for more details. 
 #################################################################################
 ## INSTALLATION OF PACKAGES FIRST
-list.of.packages <- c("devtools","DBI","RSQLite","shinyGridster","shinyBS","doParallel","foreach","netpredictor","lpbrim","ShinySky","shinyjs","shinythemes","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
+list.of.packages <- c("devtools","DBI","RSQLite","shinyBS","doParallel","foreach","netpredictor","lpbrim","shinysky","shinyjs","shinythemes","reshape2","rlist","htmltools","igraph","gdata","shiny","data.table","visNetwork","DBI","RSQLite") # replace xx and yy with package names
 
 
  packages.auto <- function(x) { 
@@ -18,7 +18,6 @@ list.of.packages <- c("devtools","DBI","RSQLite","shinyGridster","shinyBS","doPa
     if(isTRUE(x %in% .packages(all.available=TRUE))) { 
         eval(parse(text = sprintf("require(\"%s\")", x)))
      } else { 
-        #update.packages(ask= FALSE) #update installed packages.
          eval(parse(text = sprintf("install.packages(\"%s\", dependencies = TRUE)", x)))
     }
      if(isTRUE(x %in% .packages(all.available=TRUE))) { 

@@ -12,6 +12,9 @@
 * **Problems:** [Bug reports and feature reqests](https://github.com/abhik1368/Shiny_NetPredictor/issues)
 * **Authors:** [Abhik Seal](https://www.linkedin.com/in/abseal)
 
+# Video describing how to use it.
+<iframe width="420" height="315" src="//www.youtube.com/embed/xosGDuc3rdg" frameborder="0" allowfullscreen></iframe>
+
 # Start Prediction
 
 This tab allows you to select your data source for use with the Netpredictor
