@@ -27,7 +27,7 @@ inputTextarea <- function(inputId, value="", nrows, ncols) {
     )
 }
 
-shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", height = 32, width = 35) ,id ="bar",
+shinyUI(navbarPage(theme =shinytheme("simplex"),img(src = "netpredicter.png", height = 32, width = 35) ,id ="bar",
                    tabPanel(icon("home",lib = "glyphicon"),
                             
                             div(style = " text-align: center;font-family: 'times'",
@@ -65,14 +65,14 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                    ),
                    tabPanel("Start Prediction",icon=icon("dot-circle-o"),
                                
-                            tags$head(
-                                 tags$style(HTML("
-                                  h1 {
-                                    font-family: 'Verdana', cursive;
-                                    line-height: 1.1;
-                                    font-size : 20px;
-                                    color: #4863A0
-                                  }"))),
+                            # tags$head(
+                            #      tags$style(HTML("
+                            #       h1 {
+                            #         font-family: 'Verdana', cursive;
+                            #         line-height: 1.1;
+                            #         font-size : 20px;
+                            #         color: #4863A0
+                            #       }"))),
                             
                             headerPanel("Apply NetPredictor to your Data"),
                             
@@ -82,9 +82,9 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
 #                                 column(4,wellPanel(
                             sidebarPanel(width=3,
                                 # From http://stackoverflow.com/questions/19777515/r-shiny-mainpanel-display-style-and-font
-                                HTML('<style type="text/css">
-                                        .well { background-color: #ffffff; }
-                                 </style>'),
+                                # HTML('<style type="text/css">
+                                #         .well { background-color: #ffffff; }
+                                #  </style>'),
                                        h4(icon("upload",lib = "glyphicon"),"load your data (or select Example)"),
                                        radioButtons(inputId="data_input_type", 
                                                     label="",
@@ -174,7 +174,7 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                       
                                      #render_helpfile("Data Input", "mds/import.md")
                                        ),mainPanel( 
-                                           tabsetPanel(id='datatabs',
+                                           tabsetPanel('datatabs',
                                                        
                                                        tabPanel("Network Properties",br(),
                                                                 actionButton('netproperty', label='Calculate Properties',class="btn btn-primary"),
@@ -208,7 +208,7 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                                 downloadButton("downloadResult", "Download results as csv file")),
                                                        tabPanel("networkplot",
                                                        h4("Network"),
-                                                       visNetworkOutput("networkplot",height="700px"),
+                                                       visNetworkOutput("networkplot",height="725px"),
                                                        downloadButton("graphResult","Download Graph GML file"))
                                        )
                                        
@@ -216,7 +216,7 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
 
                   ## Statistical Analysis TAB
 
-                   navbarMenu(id='predtab',title="Advanced Analysis",icon=icon("gears"),
+                   navbarMenu(title = "Advanced Analysis",icon = icon("gears"),
                    tabPanel("Statistical Analysis",value = "aa",
                             tags$head(
                                 tags$style(HTML("
@@ -231,9 +231,9 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                             br(),br(),
                             sidebarPanel(width = 3,
                                 # From http://stackoverflow.com/questions/19777515/r-shiny-mainpanel-display-style-and-font
-                                HTML('<style type="text/css">
-                                     .well { background-color: #ffffff; }
-                                     </style>'),
+                                # HTML('<style type="text/css">
+                                #      .well { background-color: #ffffff; }
+                                #      </style>'),
                                 h4("Get Predictive Metrics"),
                                 numericInput('relinks',width = '200px', 
                                              label = 'Choose Random links to be removed',
@@ -281,9 +281,9 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                    headerPanel("Perform Random Permutation test on your network"),br(),
                    sidebarPanel(width = 3,
                                 # From http://stackoverflow.com/questions/19777515/r-shiny-mainpanel-display-style-and-font
-                                HTML('<style type="text/css">
-                                     .well { background-color: #ffffff; }
-                                     </style>'),
+                                # HTML('<style type="text/css">
+                                #      .well { background-color: #ffffff; }
+                                #      </style>'),
                                 h4("Perform Permutations Analysis on your Network"),
                                 numericInput('permute',width = '200px', 
                                              label = 'Choose number of random permutations',
@@ -325,9 +325,9 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                                 }"))),
                             headerPanel("Select Drug names/drugbank IDs to search"),br(),
                             sidebarPanel(width = 3,
-                                         HTML('<style type="text/css">
-                                              .well { background-color: #ffffff; }
-                                              </style>'),
+                                         # HTML('<style type="text/css">
+                                         #      .well { background-color: #ffffff; }
+                                         #      </style>'),
                                          radioButtons(inputId="search_type", 
                                                       label="",
                                                       choices=c("Search Drugs"="drugs", "Search Proteins"="proteins"),
@@ -360,9 +360,9 @@ shinyUI(navbarPage(theme =shinytheme("spacelab"),img(src = "netpredicter.png", h
                                            }"))),
                             headerPanel("Search Gene Ontology and Pathway information"),br(),
                             sidebarPanel(width = 3,
-                                    HTML('<style type="text/css">
-                                         .well { background-color: #ffffff; }
-                                         </style>'),
+                                    # HTML('<style type="text/css">
+                                    #      .well { background-color: #ffffff; }
+                                    #      </style>'),
                                     inputTextarea('selectGene', '',8,15 ),
                                     radioButtons(inputId="gopath", 
                                                  label="Select Ontology or Pathway",

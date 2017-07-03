@@ -654,10 +654,11 @@ output$moduleplot <- renderVisNetwork({
          edgeList$from <- with(nodeData, id[match(edgeList$from, nodes)])
          edgeList$to <- with(nodeData, id[match(edgeList$to,nodes)])
          edgeList$dashes <- ifelse(mynet$type == "True Interactions",FALSE,TRUE)
-         netresult <- visNetwork(nodeData, edgeList,height="700px",width = "100%") %>% visInteraction(navigationButtons = TRUE,tooltipDelay = 0) %>% visNodes(size=25) %>% visNodes(scaling=list(min=20),font=list(size=24)) %>%
-             visOptions(selectedBy = "group", nodesIdSelection = TRUE,highlightNearest = TRUE) %>% visPhysics(stabilization=FALSE) %>% visPhysics(solver = "barnesHut",barnesHut = list(gravitationalConstant = -1000,avoidOverlap=0.5,springLength=250))
+         netresult <- visNetwork(nodeData, edgeList,height="725px",width = "100%",maxVelocity = 10,minVelocity = 1.0) %>% visInteraction(navigationButtons = TRUE,tooltipDelay = 0) %>% visNodes(size = 25,scaling=list(min=20),borderWidth = 2,physics=TRUE ,font=list(size=18),color = list(border = "black",highlight = "yellow")) %>% visEdges(smooth=FALSE) %>% visLegend(width=0.05) %>%
+             visOptions(selectedBy = "group",highlightNearest = list(enabled = TRUE ,algorithm="hierarchical",hover=TRUE) ,nodesIdSelection = TRUE) %>% visPhysics(solver = "forceAtlas2Based",forceAtlas2Based = list(gravitationalConstant = -100,avoidOverlap=0.8,springLength=50,springConstant = 0.002),stabilization = list(iterations = 200, enabled = TRUE)) %>%
+             visLayout(improvedLayout = TRUE)
          
- 
+        
      })
      netResult
  })
