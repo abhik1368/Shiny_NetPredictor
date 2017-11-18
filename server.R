@@ -20,38 +20,145 @@ library(RSQLite)
 library(clusterProfiler)
 library(ReactomePA)
 library(biomaRt)
+library(DT)
 source('global.R')
 set.seed(12345)
-
+options(shiny.trace = TRUE)
+options(shiny.reactlog=TRUE) 
+options(shiny.fullstacktrace = TRUE)
+# con1 <- dbConnect(SQLite(), "ppi.sqlite")
+# Q1 <- sprintf("SELECT distinct Approved_Symbol FROM hgnc_data")
+# hgnc <- dbGetQuery(con1,Q1)
+# rownames(hgnc) <- hgnc[,1]
+# dbDisconnect(con1)
+#
+mod2 <- readRDS("genes.rds")
+## trim forward and trainling spaces
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+source('netpredictUI.R')
 #################################################################################
 
 shinyServer( function(input, output,session) {
-    
+  
+  # 
+  # login <- reactiveValues(login = FALSE, user = NULL, role = NULL, email = NULL)
+  # 
+  # # initially display the login modal
+  # observe({
+  #   composeLoginModal()
+  # })
+  # 
+  # observeEvent(input$logout_ok, {
+  #   shiny::removeModal()
+  #   
+  #   # clear the values when logout is confirmed
+  #   login$login <- FALSE
+  #   login$user  <- NULL
+  #   login$role  <- NULL
+  #   login$email <- NULL
+  #   
+  #   composeLoginModal(
+  #     div(
+  #       id    = "modal-logout-message"
+  #       , style = "margin-bottom: 10px"
+  #       , span(class = "text-muted", "Successfully Logged Out")
+  #     ) #/ modal-logout-message
+  #   ) #/ composeLoginModal
+  # })
+  # 
+  # # once a login is attempted, do some checks
+  # observeEvent(input$login_button, {
+  #   
+  #   # remove the modal while we check
+  #   shiny::removeModal()
+  #   
+  #   # query the database for that user will return NAs if not populated
+  #   stored <- sendUserGetQuery(input$login_user)
+  #   
+  #   # if any are NA then the record doesn't exist or the record is corrupted
+  #   user_invalid <- stored %>% sapply(is.na) %>% any
+  #   
+  #   # try to login, will automatically handle NULL-y objects
+  #   login$login <- validateLogin(stored$password, input$login_passwd)
+  #   
+  #   # if the login is not successful, toss up another login modal, 
+  #   # this time with a message
+  #   if (isTRUE(user_invalid) | login$login == FALSE) {
+  #     composeLoginModal(
+  #       div(
+  #         id    = "modal-login-message"
+  #         , style = "margin-bottom: 10px"
+  #         , span(style = "color: red; font-weight:bold", "Incorrect Login/Password")
+  #       ) #/ modal-login-message
+  #     ) #/ composeLoginModal
+  #   } else {
+  #     # if the login is successful, populate the known values
+  #     login$user  <- stored$user
+  #     login$role  <- stored$role
+  #     login$email <- stored$email
+  #     
+  #     rm(stored)
+  #   } #/ fi
+  # }) #/ login_button Observer
+  # 
+  # # close database conncention on exit
+  # session$onSessionEnded(function() {
+  #   dbDisconnect(db)
+  # })
+  # 
+  # observeEvent(input$logout, {
+  #   helpText("Are you sure you want to Logout? Any unsaved work will be lost!") %>%
+  #     div(style = "margin-bottom: 15px", .) %>%
+  #     showConfirmModal("logout", .)
+  # })
+  # 
+  # observeEvent(input$logout_cancel, {
+  #   shiny::removeModal()
+  # })
+  # 
+  # output$welcome <- renderUI({
+  #   # wait to render until the login is truthy
+  #   req(login$login)
+  #   
+  #   # a crude login card
+  #   div( netpredict(login$user)
+  #   # div(style = "width: 50px; margin-top: 15px"
+  #   #     # , wellPanel(
+  #   #     #   span(class = "h5", login$user)
+  #   #     #   , p("(", login$role, ")")
+  #   #     #   , tags$small(class = "text-muted", tolower(login$email))
+  #   #     #   , actionLink("logout", "Logout")
+  #   #     # )
+  #   # )
+  # )
+  # })
+  # 
     observe({
-        if(input$gofind){
+          if(input$gofind){
             updateTabsetPanel(session, "bar", selected = "Start Prediction")
         }
     })
+
+ observe({
+   if(input$start){
+        updateTabsetPanel(session, "datatabs", selected = "Prediction Results")
+    }
+})
+
+    updateSelectizeInput(session = session,inputId = "ppi", label= "HGNC Symbols", choices = mod2,server = TRUE)
     
-    observe({
-        if(input$start){
-            updateTabsetPanel(session, "datatabs", selected = "Prediction Results")
-        }
-    })
-    
-    
-## Get the properties         
+## Get the properties
  prop <- reactive({
-     
+
      if (input$netproperty <= 0){
          return(NULL)
-     } 
-     result <- isolate({ 
+     }
+     result <- isolate({
          input$netproperty
          tryCatch ({
-         
+
          if(input$data_input_type=="example"){
-             
+
              if(input$datasets == "Enzyme"){
                  load("Enzyme.rda")
                  data <- t(adjm)
@@ -72,7 +179,7 @@ shinyServer( function(input, output,session) {
                  data <- t(adjm)
                  props <- getProp(data)
                  props
-             } 
+             }
         } else if (input$data_input_type=="custom"){
             if (is.null(input$dt_file))
                 return(NULL)
@@ -88,14 +195,19 @@ shinyServer( function(input, output,session) {
      })
 
     })
- 
+
+## Get the names of PPI proteins with HGNC symbols.
+# output$PPI <- renderUI({
+# 
+#      selectInput("ppi", label= "HGNC Symbols", choices = mod2, selected = "", multiple = T,width='85%')
+#  })
 ## Get the modules of the bipartite network
 totModules <- reactive({
-     
+
     if (input$mods <= 0){
              return(NULL)
-    } 
-    
+    }
+
      input$mods
      results <- isolate({
          input$mods
@@ -109,13 +221,13 @@ totModules <- reactive({
          } else if(input$data_input_type=="custom") {
              if (is.null(input$dt_file))
                  return(NULL)
-             
+
              DTFile <- input$dt_file
              dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
              mod <- getMod(dataDT)
              mod
          }
-         
+
      })
      results
  })
@@ -124,10 +236,10 @@ totModules <- reactive({
 ## Calculation of counts of Proteins each Drug is having
 #####################################################################################
 topDrugs <- reactive({
-     
+
     if (input$netproperty <= 0){
         return(NULL)
-    } 
+    }
         # Use isolate() to avoid dependency on input$obs
         results <- isolate({
             input$netproperty
@@ -141,14 +253,14 @@ topDrugs <- reactive({
                 topRows$Drugs <- row.names(topRows)
                 res <- topRows[order(-topRows$count),][1:20,]
                 rownames(res)<- NULL
-                plt <- rPlot(x = list(var= "Drugs",sort = "count"),color= list(const='red'), y="count",data=res,type="bar") 
+                plt <- rPlot(x = list(var= "Drugs",sort = "count"),color= list(const='red'), y="count",data=res,type="bar")
                 plt$addParams(width = 600, height = 300,title = "Top 20 Drugs interaction counts")
-                plt 
+                plt
 
             } else if(input$data_input_type=="custom") {
                 if (is.null(input$dt_file))
                     return(NULL)
-                
+
                 DTFile <- input$dt_file
                 dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
                 topRows <- data.frame(colSums(dataDT))
@@ -156,11 +268,11 @@ topDrugs <- reactive({
                 topRows$Drugs <- row.names(topRows)
                 res <- topRows[order(-topRows$count),][1:15,]
                 rownames(res)<- NULL
-                plt1 <- rPlot(x = list(var= "Drugs",sort = "count"),color= list(const='red'), y="count",data=res,type="bar") 
+                plt1 <- rPlot(x = list(var= "Drugs",sort = "count"),color= list(const='red'), y="count",data=res,type="bar")
                 plt1$addParams(width = 600, height = 300,title = "Top 20 Drugs interaction counts")
-                plt1 
+                plt1
             }
-            
+
             })
         results
  })
@@ -168,13 +280,13 @@ topDrugs <- reactive({
 #####################################################################################
 ## Calculation of counts of Drugs each Protein is having
 #####################################################################################
- 
+
 topProteins <- reactive({
-    
+
     if (input$netproperty <= 0){
         return(NULL)
-    } 
-    
+    }
+
     # Use isolate() to avoid dependency on input$obs
     results <- isolate({
         input$netproperty
@@ -188,13 +300,13 @@ topProteins <- reactive({
             topRows$Proteins <- row.names(topRows)
             res <- topRows[order(-topRows$count),][1:20,]
             rownames(res)<- NULL
-            plt2 <- rPlot(x = list(var= "Proteins",sort = "count"), y="count",data=res,type="bar") 
+            plt2 <- rPlot(x = list(var= "Proteins",sort = "count"), y="count",data=res,type="bar")
             plt2$addParams(width = 600, height = 300,title = "Top 20 proteins interaction counts")
-            plt2             
+            plt2
         } else if(input$data_input_type=="custom") {
             if (is.null(input$dt_file))
                 return(NULL)
-            
+
             DTFile <- input$dt_file
             dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
             topRows <- data.frame(rowSums(dataDT))
@@ -202,11 +314,11 @@ topProteins <- reactive({
             topRows$Proteins <- row.names(topRows)
             res <- topRows[order(-topRows$count),][1:20,]
             rownames(res)<- NULL
-            plt2 <- rPlot(x = list(var= "Proteins",sort = "count"),y="count",data=res,type="bar") 
+            plt2 <- rPlot(x = list(var= "Proteins",sort = "count"),y="count",data=res,type="bar")
             plt2$addParams(width = 600, height = 300,title = "Top 20 proteins interaction counts")
-            plt2 
+            plt2
         }
-        
+
     })
     results
 })
@@ -216,11 +328,11 @@ topProteins <- reactive({
 #####################################################################################
 
 betweennessDrugs <- reactive({
-    
+
     if (input$netproperty <= 0){
         return(NULL)
-    } 
-    
+    }
+
     # Use isolate() to avoid dependency on input$obs
     results <- isolate({
         input$netproperty
@@ -229,40 +341,40 @@ betweennessDrugs <- reactive({
             exdata <- paste(dset,".rda",sep="")
             load(exdata)
             data <- t(adjm)
+            topRows <- data.frame(rowSums(data))
+            colnames(topRows)[1] <- "count"
             net2 <- graph_from_incidence_matrix(data)
             net2.bp <- bipartite.projection(net2)
             btw1 <- betweenness(net2.bp[[1]], directed=F, weights=NA)
             btwDF <- data.frame(btw1)
-            btwDrugs <- cbind(btwDF,rownames(btwDF))
-            colnames(btwDrugs)[1] <- "Betweenness" 
-            colnames(btwDrugs)[2] <- "Proteins"
+            btwDrugs <- cbind(btwDF,topRows,rownames(btwDF))
+            colnames(btwDrugs)[1] <- "Betweenness"
+            colnames(btwDrugs)[2] <- "Degree"
+            colnames(btwDrugs)[3] <- "Drugs"
             rownames(btwDrugs) <- NULL
-            res <- btwDrugs[order(-btwDrugs$Betweenness),][1:20,]
-            print(head(res))
-            
-            plt3 <- rPlot(x = list(var= "Proteins",sort = "Betweenness"),color= list(const='red'), y="Betweenness",data=res,type="bar")
-            plt3$addParams(width = 600, height = 300,title = "Top 20 betweenness Drugs")
-            plt3             
+            #res <- btwDrugs[order(-btwDrugs$Betweenness),][1:20,]
+            btwDrugs 
         } else if(input$data_input_type=="custom") {
             if (is.null(input$dt_file))
                 return(NULL)
-            
+
             DTFile <- input$dt_file
             dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
+            topRows <- data.frame(rowSums(dataDT))
+            colnames(topRows)[1] <- "count"
+            
             net2 <- graph_from_incidence_matrix(dataDT)
             net2.bp <- bipartite.projection(net2)
             btw1 <- betweenness(net2.bp[[1]], directed=F, weights=NA)
             btwDF <- data.frame(btw1)
-            btwDrugs <- cbind(btwDF,rownames(btwDF))
-            colnames(btwDrugs)[1] <- "Betweenness" 
-            colnames(btwDrugs)[2] <- "Drugs"
+            btwDrugs <- cbind(btwDF,topRows,rownames(btwDF))
+            colnames(btwDrugs)[1] <- "Betweenness"
+            colnames(btwDrugs)[2] <- "Degree"
+            colnames(btwDrugs)[3] <- "Drugs"
             rownames(btwDrugs) <- NULL
-            res <- btwDrugs[order(-btwDrugs$Betweenness),][1:20,]
-            plt3 <- rPlot(x = list(var= "Proteins",sort = "Betweenness"),color= list(const='red') , y="Betweenness",data=res,type="bar") 
-            plt3$addParams(width = 600, height = 300,title = "Top 20 betweenness Drugs")
-            plt3 
+            btwDrugs
         }
-        
+
     })
     results
 })
@@ -272,52 +384,62 @@ betweennessDrugs <- reactive({
 #####################################################################################
 
 betweennessProteins <- reactive({
-    
+
     if (input$netproperty <= 0){
         return(NULL)
-    } 
+    }
     # Use isolate() to avoid dependency on input$obs
     results <- isolate({
         input$netproperty
         if(input$data_input_type=="example"){
+            #dset <- "Enzyme"
             dset <- input$datasets
             exdata <- paste(dset,".rda",sep="")
             load(exdata)
             data <- t(adjm)
+            topRows <- data.frame(colSums(data))
+            colnames(topRows)[1] <- "count"
             net2 <- graph_from_incidence_matrix(data)
             net2.bp <- bipartite.projection(net2)
             btw1 <- betweenness(net2.bp[[2]], directed=F, weights=NA)
             btwDF <- data.frame(btw1)
-            
-            btwProteins <- cbind(btwDF,rownames(btwDF))
-            colnames(btwProteins)[1] <- "Betweenness" 
-            colnames(btwProteins)[2] <- "Drugs"
+
+            btwProteins <- cbind(btwDF,topRows,rownames(btwDF))
+            colnames(btwProteins)[1] <- "Betweenness"
+            colnames(btwProteins)[2] <- "degree"
+            colnames(btwProteins)[3] <- "Proteins"
             rownames(btwProteins) <- NULL
-            print(head(res))
-            res <- btwProteins[order(-btwProteins$Betweenness),][1:20,]
-            plt4 <- rPlot(x = list(var= "Drugs",sort = "Betweenness"), y="Betweenness",data=res,type="bar")
-            plt4$addParams(width = 600, height = 300,title = "Top 20 High Betweenness Proteins")
-            plt4 
+            print(head(btwProteins))
+            #res <- btwProteins[order(-btwProteins$Betweenness),][1:20,]
+            btwProteins
+            #plt4 <- rPlot(x = list(var= "Proteins",sort = "Betweenness"), y="Betweenness",data=res,type="bar")
+            #plt4$addParams(width = 600, height = 300,title = "Top 20 High Betwee   nness Proteins")
+            #plt4
         } else if(input$data_input_type=="custom") {
             if (is.null(input$dt_file))
                 return(NULL)
-            
+
             DTFile <- input$dt_file
             dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
+            topRows <- data.frame(colSums(dataDT))
+            colnames(topRows)[1] <- "count"
+
             net2 <- graph_from_incidence_matrix(dataDT)
             net2.bp <- bipartite.projection(net2)
-            btw1 <- betweenness(net2.bp[[1]], directed=F, weights=NA)
-            btwDF <- data.frame(btw1)
-            btwProteins <- cbind(btwDF,rownames(btwDF))
-            colnames(btwProteins)[1] <- "Betweenness" 
-            colnames(btwProteins)[2] <- "Drugs"
+
+            btwDF <- data.frame(betweenness(net2.bp[[1]], directed=F, weights=NA))
+            btwProteins <- cbind(btwDF,topRows,rownames(btwDF))
+            colnames(btwProteins)[1] <- "Betweenness"
+            colnames(btwProteins)[2] <- "degree"
+            colnames(btwProteins)[3] <- "Proteins"
             rownames(btwProteins) <- NULL
-            res <- btwProteins[order(-btwProteins$Betweenness),][1:20,]
-            plt4 <- rPlot(x = list(var= "Drugs",sort = "Betweenness"), y="Betweenness",data=res,type="bar")
-            plt4$addParams(width = 600, height = 300,title = "Top 20 High Betweenness Proteins")
-            plt4  
+            #res <- btwProteins[order(-btwProteins$Betweenness),][1:20,]
+            #plt4 <- rPlot(x = list(var= "Proteins",sort = "Betweenness"), y="Betweenness",data=res,type="bar")
+            #plt4$addParams(width = 600, height = 300,title = "Top 20 High Betweenness Proteins")
+            #plt4
+            DT::datatable(btwProteins)
         }
-        
+
     })
     results
 })
@@ -327,31 +449,57 @@ betweennessProteins <- reactive({
 #####################################################################################
 
 
-## Output properties table 
+## Output properties table
 output$prop_table <- renderTable({
     prop()
-     
+
  })
- 
+
 ## Output count distribution of drugs
-output$countDrugs <- renderChart2({
-    topDrugs()
-})
+# output$countDrugs <- renderChart2({
+#     topDrugs()
+# })
+# 
+# ## Output count distribution of proteins
+# output$countProteins <- renderChart2({
+#     topProteins()
+# })
 
 ## Output count distribution of proteins
-output$countProteins <- renderChart2({
-    topProteins()
-})
+# output$btwProteins <- renderChart2({
+#     betweennessProteins()
+# })
 
-## Output count distribution of proteins
-output$btwProteins <- renderChart2({
+output$btwProteinsdt <- renderDataTable({
     betweennessProteins()
-})
+},
+extensions = 'Buttons',
+filter = 'top',
+class = 'cell-border stripe',
+options = list(
+  autoWidth = FALSE,
+  autoWidth = TRUE,
+  "dom" = 'T<"clear">lBfrtip',
+  buttons = list('csv', 'excel')
+))
 
 
-output$btwDrugs <- renderChart2({
-    betweennessDrugs()
-})
+# output$btwDrugs <- renderChart2({
+#     betweennessDrugs()
+# })
+
+output$btwDrugsdt <- renderDataTable({
+  betweennessDrugs()
+},
+extensions = 'Buttons',
+filter = 'top',
+class = 'cell-border stripe',
+options = list(
+  autoWidth = FALSE,
+  autoWidth = TRUE,
+  "dom" = 'T<"clear">lBfrtip',
+  buttons = list('csv', 'excel')
+))
 
 
 #####################################################################################
@@ -365,7 +513,7 @@ tot_modules <- reactive({
     len <- length(mod)
     modules <- c()
     for (i in 1:len){
-        
+
         modules[i] <- paste("module",toString(i),sep="")
     }
    return(modules)
@@ -382,7 +530,7 @@ full_modules <- reactive({
 #####################################################################################
 
 output$modules = renderUI({
-    
+
     selectInput('module', 'Modules', tot_modules())
 })
 
@@ -394,20 +542,20 @@ data_table <- reactive({
     # If missing input, return to avoid error later in function
     if(is.null(input$module))
         return()
-    
+
     # Get the module
     dat <- input$module
-    
+
     if (dat %in%  tot_modules())
         modIndx <- match(dat, tot_modules())
-    
+
     modMat <- full_modules()
     mod <- modMat[[modIndx]]
     gMod <- graph.incidence(mod)
     el <- get.edgelist(gMod)
     colnames(el) <- c("column1","column2")
     return (el)
-    
+
 })
 
 ## Out the module list on the data table
@@ -423,22 +571,22 @@ output$data_table <- renderDataTable( {
 #####################################################################################
 
 modnetwork <- reactive({
-    
+
     if (input$shownet <= 0){
         return(NULL)
     }
-    
+
     netResult <- isolate({
         input$shownet
         if(is.null(input$module))
             return()
-        
+
         # Get the module
         dat <- input$module
-        
+
         if (dat %in%  tot_modules())
             modIndx <- match(dat, tot_modules())
-        
+
         modMat <- full_modules()
         mod <- modMat[[modIndx]]
         gMod <- graph.incidence(mod)
@@ -458,9 +606,9 @@ modnetwork <- reactive({
         edgeList$to <- with(nodeData, id[match(edgeList$to,nodes)])
         #edgeList$dashes <- ifelse(mynet$type == "True Interactions",FALSE,TRUE)
         netresult <- visNetwork(nodeData, edgeList,width = "70%") %>% visNodes(size = 25) %>% visInteraction(navigationButtons = TRUE,tooltipDelay = 0) %>% visLegend() %>% visNodes(scaling=list(min=20),font=list(size=24)) %>%
-            visOptions(selectedBy = "group", nodesIdSelection = TRUE,highlightNearest = TRUE)%>% visPhysics(solver = "barnesHut",barnesHut = list(gravitationalConstant = -1000,avoidOverlap=0.5,springLength=250))
-        
-        
+            visOptions(selectedBy = "group", nodesIdSelection = TRUE,highlightNearest = TRUE)%>% visPhysics(solver = "barnesHut",barnesHut = list(gravitationalConstant = -1000,avoidOverlap=0.5,springLength=250)) %>% visExport()
+
+
     })
     netResult
 })
@@ -474,36 +622,36 @@ output$moduleplot <- renderVisNetwork({
     modnetwork()
 })
 
- observe({
-     if (input$start == 0) 
-         return()
-     showshinyalert(session, "shinyalert1", paste("Computation in progress", "success"), 
-                    styleclass = "success")
- })
+ # observe({
+ #     if (input$start == 0)
+ #         return()
+ #     showshinyalert(session, "shinyalert1", paste("Computation in progress", "success"),
+ #                    styleclass = "success")
+ # })
 
- 
+
  #####################################################################################
  ## Calculate prediction models using different algorithms
  #####################################################################################
- 
- 
+
+
  Result <- reactive({
-     
-     
+
+
      if (input$start <= 0){
          return(NULL)
-     } 
-     
+     }
+
      # Take a dependency on input$start
      input$start
-     
+
      if(input$data_input_type=="example"){
          # Use isolate() to avoid dependency on input$obs
          results <- isolate({
-    
+
          dset <- input$datasets
          exdata <- paste(dset,".rda",sep="")
-         
+
          if (input$algorithm_typeI == "heat"){
              heat_alpha = input$heatAlpha
              heat_lamda = input$heatLambda
@@ -524,9 +672,9 @@ output$moduleplot <- renderVisNetwork({
              nc_lamda = input$ncLambda
              results <- getcombo(exdata,nc_alpha,nc_lamda,restart)
              results
-         } 
+         }
      })
-     
+
       results
      } else if (input$data_input_type=="custom"){
          if (is.null(input$dt_file))
@@ -535,18 +683,18 @@ output$moduleplot <- renderVisNetwork({
              return(NULL)
          if (is.null(input$target_file))
              return(NULL)
-         
-         results <- isolate({ 
-             
+
+         results <- isolate({
+
              DTFile <- input$dt_file
              dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
-             
+
              DFile <- input$drug_file
              dataD <- as.matrix(read.csv(DFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
-             
+
              TFile <- input$target_file
              dataT <- as.matrix(read.csv(TFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
-             
+
              if (input$algorithm_typeII == "heat"){
                  heat_alpha = input$cheatAlpha
                  heat_lamda = input$cheatLambda
@@ -567,36 +715,36 @@ output$moduleplot <- renderVisNetwork({
                  nc_lamda = input$cncLambda
                  results <- getCustomCombo(dataDT,dataD,dataT,nc_alpha,nc_lamda,restart)
                  results
-             } 
+             }
          })
          results
      }
-     
-     
-     
+
+
+
  })
- 
+
  ## Get the output Result to data table output
- 
+
  output$Result <- renderDataTable(Result(),options = list(pageLength = 10))
- 
- 
+
+
  output$downloadResult <- downloadHandler(
-     
+
      filename = function() { paste("Results.txt") },
-     
+
      content = function(file) {
          write.table(Result(), file, row.names=FALSE, quote=FALSE, sep="\t")
-         
-     })
- 
 
- 
+     })
+
+
+
 #  output$networkplot <- renderForceNetwork({
-#      
+#
 #      if (input$start <= 0){
 #          return(NULL)
-#      } 
+#      }
 #      input$start
 #      netResult <- isolate({
 #          mynet <- Result()
@@ -612,13 +760,13 @@ output$moduleplot <- renderVisNetwork({
 #          colnames(mynet)[3] <- "value"
 #          edgeList <- mynet[, c("source","target","value")]
 #          #edgeData <- edgeList
-#          
+#
 #          nodesID <- data.frame(nodes,id=seq(0,length(nodes)-1,1))
 #          edgeList$source <- with(nodesID, id[match(edgeList$source, nodes)])
 #          edgeList$target <- with(nodesID, id[match(edgeList$target,nodes)])
 #          nodeData$name <- factor(nodeData$name)
-#          
-#          
+#
+#
 #          forceNetwork(Links = edgeList, Nodes = nodeData, Source = "source",
 #                       Target = "target", NodeID = "name",zoom = TRUE,Value="value",
 #                       Group = "group",fontFamily="verdana",linkColour = "#afafaf",opacity = 0.8,legend=T)
@@ -627,14 +775,14 @@ output$moduleplot <- renderVisNetwork({
 #      })
 #     netResult
 #  })
-#  
- 
+#
+
  #####################################################################################
  ## Generate network at networkplot tab
  #####################################################################################
- 
+
  output$networkplot <- renderVisNetwork({
-     
+
      if (input$start <= 0){
          return(NULL)
      }
@@ -646,7 +794,7 @@ output$moduleplot <- renderVisNetwork({
          group2 <- length(unique(mynet$Drugs))
          id=seq(0,length(nodes)-1,1)
          label=nodes
-         
+
          nodeData <- data.frame(id ,label,group=c(rep("Proteins",group1),rep("Drugs",group2)),stringsAsFactors=FALSE)
          colnames(mynet)[1] <- "from"
          colnames(mynet)[2] <- "to"
@@ -656,45 +804,45 @@ output$moduleplot <- renderVisNetwork({
          edgeList$dashes <- ifelse(mynet$type == "True Interactions",FALSE,TRUE)
          netresult <- visNetwork(nodeData, edgeList,height="725px",width = "100%",maxVelocity = 10,minVelocity = 1.0) %>% visInteraction(navigationButtons = TRUE,tooltipDelay = 0) %>% visNodes(size = 25,scaling=list(min=20),borderWidth = 2,physics=TRUE ,font=list(size=18),color = list(border = "black",highlight = "yellow")) %>% visEdges(smooth=FALSE) %>% visLegend(width=0.05) %>%
              visOptions(selectedBy = "group",highlightNearest = list(enabled = TRUE ,algorithm="hierarchical",hover=TRUE) ,nodesIdSelection = TRUE) %>% visPhysics(solver = "forceAtlas2Based",forceAtlas2Based = list(gravitationalConstant = -100,avoidOverlap=0.8,springLength=50,springConstant = 0.002),stabilization = list(iterations = 200, enabled = TRUE)) %>%
-             visLayout(improvedLayout = TRUE)
-         
-        
+             visLayout(improvedLayout = TRUE) %>% visExport()
+
+
      })
      netResult
  })
- 
+
  #####################################################################################
  ## Download options for Network
  #####################################################################################
- 
- 
+
+
  output$graphResult <- downloadHandler(
-     
+
      filename = function() { paste("graph.gml") },
-     
+
      content = function(file) {
          netResult <- Result()
          g<-graph.data.frame(netResult[,1:2],directed=FALSE)
-         
+
          ## Set the edge values
          g <- set.edge.attribute(g, "weight", value=netResult[,3])
          saveGML(g,file ,"netresult")
-         
+
      })
 
- 
+
  #####################################################################################
  ## Function Advanced Analysis for statistical metrics
  #####################################################################################
- 
- 
- advancedResult <- reactive({ 
-     
+
+
+ advancedResult <- reactive({
+
      input$submit
      if(input$data_input_type=="example"){
          # Use isolate() to avoid dependency on input$obs
          adresults <- isolate({
-             
+
              dset <- input$datasets
              exdata <- paste(dset,".rda",sep="")
              #print(exdata)
@@ -717,7 +865,7 @@ output$moduleplot <- renderVisNetwork({
                  results$method = "RWR"
                  print (head(results))
                  results
-                 
+
              } else if (input$predMetrics == "nc"){
                  nc_rt = input$pdcnc_restart
                  nc_alpha = input$pdcncAlpha
@@ -727,32 +875,32 @@ output$moduleplot <- renderVisNetwork({
                  results$Freq_Association = nT
                  results$method = "NetCombo"
                  results
-             } 
+             }
          })
-     
-     
+
+
      } else if (input$data_input_type=="custom"){
-     
+
          if (is.null(input$dt_file))
              return(NULL)
          if (is.null(input$drug_file))
              return(NULL)
          if (is.null(input$target_file))
              return(NULL)
-         
-         adresults <- isolate({ 
+
+         adresults <- isolate({
 
              DTFile <- input$dt_file
              dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
-             
+
              DFile <- input$drug_file
              dataD <- as.matrix(read.csv(DFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
-             
+
              TFile <- input$target_file
              dataT <- as.matrix(read.csv(TFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
              rl = input$relinks
              nT = input$freqT
-             
+
             if (input$predMetrics == "nbi"){
                  nbi_alpha = input$pdnbiAlpha
                  nbi_lamda = input$pdnbiLambda
@@ -778,37 +926,37 @@ output$moduleplot <- renderVisNetwork({
                  results$Freq_Association = nT
                  results$method = "NetCombo"
                  results
-             } 
+             }
          })
      }
-         
+
      })
-     
+
      myresult <- reactiveValues()
      myresult$df <- data.frame()
-     newEntry <- observe({
+    observe({
          if(input$submit>0){
              newdata <- isolate(advancedResult())
              isolate(myresult$df <- rbind(myresult$df,newdata))
          }
      })
-     
+
 #####################################################################################
 ## Function Significance analysis tab
-#####################################################################################    
-     
-     
-    ## This function for the significance results tab 
-    sigResult <- reactive({ 
-        
-        
+#####################################################################################
+
+
+    ## This function for the significance results tab
+    sigResult <- reactive({
+
+
         if (input$sigSubmit <= 0){
             return(NULL)
-        } 
+        }
          input$sigSubmit
 
          if(input$data_input_type=="example"){
-             
+
              adresults <- isolate({
                  permutation <- input$permute
                  significance <- input$sig
@@ -827,27 +975,27 @@ output$moduleplot <- renderVisNetwork({
                      sigresults
                  }
              })
-         
-             
+
+
          }  else if(input$data_input_type=="custom"){
-             
+
              if (is.null(input$dt_file))
                  return(NULL)
              if (is.null(input$drug_file))
                  return(NULL)
              if (is.null(input$target_file))
                  return(NULL)
-             
+
              adresults <- isolate({
                  DTFile <- input$dt_file
                  dataDT <- as.matrix(read.csv(DTFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
-                 
+
                  DFile <- input$drug_file
                  dataD <- as.matrix(read.csv(DFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
-                 
+
                  TFile <- input$target_file
                  dataT <- as.matrix(read.csv(TFile$datapath, sep=",", header=TRUE, fill=TRUE,row.names = 1,quote = '"'))
-                 
+
                  permutation <- input$permute
                  significance <- input$sig
 
@@ -862,52 +1010,52 @@ output$moduleplot <- renderVisNetwork({
                      sigResults
                  }
              })
-             
-             
-         } 
-           
+
+
+         }
+
         })
 
 #####################################################################################
 ## Output advanced analysis tab results
 #####################################################################################
-         
- ## output table for the navbarmenu tabs    
+
+ ## output table for the navbarmenu tabs
  output$advTable <-  renderDataTable(myresult$df)
- 
+
  output$downloadadvr <- downloadHandler(
-     
+
      filename = function() { paste("advResults.txt") },
-     
+
      content = function(file) {
          write.table(myresult$df, file, row.names=FALSE, quote=FALSE, sep="\t")
-         
+
      })
- 
+
 
   output$sigTable <-  renderDataTable({
      sigResult()
      })
- 
+
   output$downloadSig <- downloadHandler(
-      
+
       filename = function() { paste("Results.txt") },
-      
+
       content = function(file) {
           write.table(sigResult(), file, row.names=FALSE, quote=FALSE, sep="\t")
-          
+
       })
-  
-  
+
+
 #####################################################################################
 ## Function Drugbank Search tab
 #####################################################################################
-  
-  dResult <- reactive({ 
+
+  dResult <- reactive({
       if (input$dSearch <= 0){
           return(NULL)
-      } 
-      
+      }
+
       input$dSearch
       dresults <- isolate({
          if(input$search_type=='drugs'){
@@ -931,82 +1079,230 @@ output$moduleplot <- renderVisNetwork({
               dbDisconnect(con)
               t1
           }
-  
+
       })
         #dresults
   })
 
- 
+
   output$dtable <-  renderDataTable({
       dResult()
   })
-  
+
   output$dBdownload <- downloadHandler(
-      
+
       filename = function() { paste("drugbank_result.txt") },
-      
+
       content = function(file) {
           write.table(dResult(), file, row.names=FALSE, quote=FALSE, sep="\t")
-          
+
       })
 
 #####################################################################################
 ## Gene Ontology and pathway search.
-#####################################################################################  
-  
-  dGoPath <- reactive({ 
+#####################################################################################
+
+  dGoPath <- reactive({
       if (input$genelist <= 0){
           return(NULL)
-      } 
+      }
       input$genelist
       dresults <- isolate({
           if(input$gopath=='go'){
               input$genelist
               glist <- input$selectGene
               gname <-  gsub(" ", "",glist, fixed = TRUE)
-              names <- unlist(strsplit(gname,","))
+              names <- unlist(strsplit(gname,"\n"))
               print (names)
               human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
               mapTab <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = names, mart = human, uniqueRows=FALSE)
               geneID <- mapTab$entrezgene
-              
+
               fgo <- getGOdata(geneID,input$level)
               fgo
-              
+
           } else if(input$gopath=='pathway'){
               input$genelist
               glist <- input$selectGene
               gname <-  gsub(" ", "",glist, fixed = TRUE)
-              names <- unlist(strsplit(gname,","))
+              names <- unlist(strsplit(gname,"\n"))
               print (names)
               human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
               mapTab <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = names, mart = human, uniqueRows=FALSE)
               geneID <- mapTab$entrezgene
-              x <- enrichPathway(gene=as.character(geneID),pvalueCutoff=0.05, readable=T)
-              path <- summary(x)
+              x <- enrichPathway(gene=as.character(geneID),organism = "human",pvalueCutoff=0.05, readable=T)
+              path <- as.data.frame(x)
               p <- path[path$Count > 0,]
               p
           }
-          
+        
+        else if(input$gopath =='disease'){
+          input$genelist
+          glist <- input$selectGene
+          gname <-  gsub(" ", "",glist, fixed = TRUE)
+          names <- unlist(strsplit(gname,"\n"))
+          print (names)
+          human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
+          mapTab <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = names, mart = human, uniqueRows=FALSE)
+          geneID <- mapTab$entrezgene
+          x <- enrichDGN(gene=as.character(geneID),pvalueCutoff=0.05, readable=T)
+          disease <- as.data.frame(x)
+          d <- disease[disease$Count > 0,]
+          d
+        }
+
       })
-  
+
   })
-  
+
   #####################################################################################
   ## Gene Ontology and pathway search results download
-  #####################################################################################  
-  
+  #####################################################################################
+
   output$genePathway <-  renderDataTable({
       dGoPath()
   })
-  
+
   output$Godownload <- downloadHandler(
-      
-      filename = function() { paste("OntoPath_result.txt") },
-      
+
+      filename = function() { paste("Enrichment_result.txt") },
+
       content = function(file) {
           write.table(dGoPath(), file, row.names=FALSE, quote=FALSE, sep="\t")
-          
+
       })
- 
+
+  #####################################################################################
+  ## PPI data search
+  #####################################################################################
+  observeEvent(input$reset, {
+      shinyjs::js$reset()
+  })
+
+  output$conditionalCheck <- renderUI({
+      if(input$pathway){
+          # numericInput("pval", label = "P-value Cutoff :", min = NA,
+          #              max = NA, value = 0.01 , step = NA,
+          #              width = "165px"),
+          sliderInput("pval", label = "P-value Cutoff", value=0.01, step = 0.02, min=0, max=1,width = '200px')
+      }
+  })
+  output$ppinet <- renderVisNetwork({
+
+      if (input$ppisearch <= 0){
+          return(NULL)
+      }
+
+      input$ppisearch
+      proteins <- isolate(input$ppi)
+
+      if (proteins ==''){
+
+          createAlert(session, "alertppi", "exampleAlert1", title = "Oops",
+                      content = "Enter Protein symbol", append = FALSE)
+
+      } else{
+
+          conf <- isolate(input$confidence)
+          dataid <- isolate(input$dataid)
+          ppinet <- get.ppi(proteins,conf,dataid)
+          return(ppinet)
+
+      }
+
+  })
+
+  ppiPath <- reactive({
+
+      if (input$ppisearch <= 0){
+          return(NULL)
+      }
+
+      input$ppisearch
+      from <- trim(toupper(isolate(input$from)))
+      to <- trim(toupper(isolate(input$to)))
+      #pathid <- isolate(input$pathid)
+
+      ## Check if Genes in mod2 ( genes list)
+      s1 <- from %in% mod2
+
+      #s1 <- dbGetQuery(con1,Q1)
+      s2 <- to %in% mod2
+
+      #s2 <- dbGetQuery(con1,Q2)
+
+      if(from == '' | to == '') {
+          createAlert(session, "alert", "exampleAlert", title = "Oops",
+                      content = "Both inputs should be Given.", append = FALSE)
+      } else if((s1 != 'TRUE' ) | (s2 != 'TRUE')) {
+          createAlert(session, "alert", "exampleAlert", title = "Oops",
+                      content = "Gene symbol doesn't match", append = FALSE)
+      } else if(input$pathway == "TRUE") {
+          closeAlert(session, "exampleAlert")
+          kpath <- isolate(input$kpath)
+          pvalpath <- isolate(input$pval)
+          weight <- isolate(input$weight)
+          pathnet <- get.path(from,to,kpath,pathway=TRUE,pval=pvalpath,weighted = weight)
+
+          #return(pathnet)
+          return(list(path = pathnet$netresult , pathway = pathnet$pathway))
+      } else {
+
+          closeAlert(session, "exampleAlert")
+          kpath <- isolate(input$kpath)
+          weight <- isolate(input$weight)
+          pathnet <- get.path(from,to,kpath,pathway=FALSE,pval=0,weighted = weight)
+          return(list(path = pathnet$netresult))
+
+      }
+
+  })
+  output$subnet <- renderVisNetwork({
+    
+    print(input$data_search)
+    
+    if (input$ppisearch <= 0){
+      return(NULL)
+    }
+    input$ppisearch
+    input$proteinlist
+    dataset <- isolate(input$ppi_id3)
+    print (dataset)
+    glist <- toupper(isolate(input$proteinlist))
+    print (glist)
+    gnames <- gsub(" ","",glist,fixed=TRUE)
+    names <- unlist(strsplit(gnames,"\n"))
+    genes <- as.character(names)
+    subgr <- get.sub(genes,dataset=dataset)
+    return(subgr)
+    
+  })
+  output$pathnet <- renderVisNetwork({
+
+     netWork <-  ppiPath()
+     return(netWork$path)
+
+      })
+
+  output$pathTab <- renderDataTable({
+
+      pathTab <-  ppiPath()
+      data <- pathTab$pathway
+      data <- data[, -which(names(data) %in% c("pvalue","qvalue"))]
+      return(data)
+  },
+  extensions = 'Buttons',
+  filter = 'top',
+  class = 'cell-border stripe',
+  options = list(
+    autoWidth = FALSE,
+    autoWidth = TRUE,
+    "dom" = 'T<"clear">lBfrtip',
+    buttons = list('csv', 'excel')
+  ))
+  
+
+
 })
+
+
