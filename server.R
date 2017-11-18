@@ -1063,7 +1063,7 @@ output$moduleplot <- renderVisNetwork({
              input$dSearch
              drug = input$did
              dname <-  gsub(" ", "", drug, fixed = TRUE)
-             con = dbConnect(SQLite(), dbname="drugbank_prediction.db")
+             con = dbConnect(SQLite(), dbname="data/drugbank_prediction.db")
              #alltables = dbListTables(con)
              dq <-  sprintf("select DRUGBANK_ID,drugbank_predictions.UNIPROTID,pvalue,outcome,NAME,GENE from drugbank_predictions,target_info where drugbank_predictions.UNIPROTID=target_info.UNIPROTID and drugbank_predictions.DRUGBANK_ID=\'%s\'",dname)
              p1 = dbGetQuery(con,dq)
@@ -1205,8 +1205,8 @@ output$moduleplot <- renderVisNetwork({
       } else{
 
           conf <- isolate(input$confidence)
-          dataid <- isolate(input$dataid)
-          ppinet <- get.ppi(proteins,conf,dataid)
+          #dataid <- isolate(input$dataid)
+          ppinet <- get.ppi(proteins,conf)
           return(ppinet)
 
       }

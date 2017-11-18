@@ -320,8 +320,8 @@ shinyUI(navbarPage(theme = shinytheme("flatly"),img(src = "netpredicter.png", he
                                         
                                         #uiOutput("location"),
                                         sliderInput("confidence", "Confidence:",
-                                                    min = 0, max = 1, value = 0.99, step= 0.01),
-                                        div(style="display:inline-block", radioButtons("dataid", "Select only:",  choices=c("show ppi", "show drugs"), selected ="show ppi"))),
+                                                    min = 0, max = 1, value = 0.99, step= 0.01)
+                                        ),
 
                                         #uiOutput("ppipanel")),
 

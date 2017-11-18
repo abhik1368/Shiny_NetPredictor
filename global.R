@@ -80,7 +80,7 @@ library(shinyWidgets)
 # support_contact <- "abhik1368@gmail.com"
 
 ## db connection
-con2 <- dbConnect(SQLite(), "ppi.sqlite")
+con2 <- dbConnect(SQLite(), "data/ppi.sqlite")
 Q1 <- sprintf("SELECT * FROM human_ppi")
 interactome_data <- dbGetQuery(con2,Q1)
 dbDisconnect(con2)
@@ -436,9 +436,9 @@ getGOdata <- function(geneID,level) {
     return (fgo)
 }
 
-get.ppi <- function(proteins,conf,dataid){
+get.ppi <- function(proteins,conf){
 
-    dg <- info.ppi(proteins,conf,dataid)
+    dg <- info.ppi(proteins,conf)
 
 
     # netresult <- visNetwork(dg$nodeData, dg$edgeList,background = "lightblue",maxVelocity = 10,minVelocity = 1.0) %>% visIgraphLayout(type= "full",randomSeed = 123,layout = "layout.kamada.kawai") %>% visOptions(selectedBy = "group",highlightNearest = list(enabled = T, hover = T), nodesIdSelection = T) %>%
@@ -465,9 +465,9 @@ info.ppi <- function(proteins,conf,dataid){
     #pnodes <- unique(c(as.character(fset$from), as.character(fset$to)))
     #nodelist <- paste("'",as.character(pnodes),"'",collapse =", ",sep ="")
 
-    if(is.null(dataid)){
-        return(NULL)
-    }
+    # if(is.null(dataid)){
+    #     return(NULL)
+    # }
 
         # if(dataid == 'show drugs'){
         #
@@ -501,7 +501,7 @@ info.ppi <- function(proteins,conf,dataid){
         #     return(list(nodeData = nodeData , edgeList=edgeList))
         #
         # } else
-        if(dataid == 'show ppi'){
+        #if(dataid == 'show ppi'){
 
             ##################################################
             ### Show the ppi based
@@ -526,7 +526,7 @@ info.ppi <- function(proteins,conf,dataid){
 
             return(list(nodeData = nodeData , edgeList=edgeList))
 
-        }
+       # }
 
 
 
