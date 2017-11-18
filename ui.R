@@ -353,11 +353,8 @@ shinyUI(navbarPage(theme = shinytheme("flatly"),img(src = "netpredicter.png", he
                                                                                                                                 "String"), size="sm",status = "primary", selected = "ConsensusPath",
                                                                                             checkIcon = list(yes = icon("ok",lib = "glyphicon"))))),
                                       
-                                     div(style="display:inline-block" ,actionButton('ppisearch', label='Search',class="btn btn-primary"),useShinyjs(),
-                                         extendShinyjs(text = jscode, functions = c("closeWindow")),br(),br(),
-                                         actionButton("close2", "Close Application")),
-                                     br(),
-                                     br())
+                                     div(style="display:inline-block" ,actionButton('ppisearch', label='Search',class="btn btn-primary"))
+                                     )
                          ),
                          mainPanel(conditionalPanel(condition = "input.data_search == 'ppi'",
                                                                    br(),

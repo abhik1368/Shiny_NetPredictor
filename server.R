@@ -32,7 +32,7 @@ options(shiny.fullstacktrace = TRUE)
 # rownames(hgnc) <- hgnc[,1]
 # dbDisconnect(con1)
 #
-mod2 <- readRDS("genes.rds")
+mod2 <- readRDS("data/genes.rds")
 ## trim forward and trainling spaces
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
 source('netpredictUI.R')
@@ -160,22 +160,22 @@ shinyServer( function(input, output,session) {
          if(input$data_input_type=="example"){
 
              if(input$datasets == "Enzyme"){
-                 load("Enzyme.rda")
+                 load("data/Enzyme.rda")
                  data <- t(adjm)
                  props <- getProp(data)
                  props
              } else if (input$datasets == "GPCR"){
-                 load("GPCR.rda")
+                 load("data/GPCR.rda")
                  data <- t(adjm)
                  props <- getProp(data)
                  props
              } else if (input$datasets == "Nuclear Receptor"){
-                load("Nuclear Receptor.rda")
+                load("data/Nuclear Receptor.rda")
                  data <- t(adjm)
                  props <- getProp(data)
                  props
              } else if (input$datasets == "Ion Channel") {
-                load("Ion Channel.rda")
+                load("data/Ion Channel.rda")
                  data <- t(adjm)
                  props <- getProp(data)
                  props
@@ -193,6 +193,7 @@ shinyServer( function(input, output,session) {
              print(paste("Select Example or custom data set"))
          })
      })
+     result
 
     })
 
@@ -1259,13 +1260,13 @@ output$moduleplot <- renderVisNetwork({
   })
   output$subnet <- renderVisNetwork({
     
-    print(input$data_search)
+    #print(input$data_search)
     
     if (input$ppisearch <= 0){
       return(NULL)
     }
     input$ppisearch
-    input$proteinlist
+    #input$proteinlist
     dataset <- isolate(input$ppi_id3)
     print (dataset)
     glist <- toupper(isolate(input$proteinlist))
