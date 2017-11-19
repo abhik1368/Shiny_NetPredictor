@@ -11,6 +11,8 @@
 * **Source:** [GitHub](https://github.com/abhik1368/Shiny_NetPredictor)
 * **Problems:** [Bug reports and feature reqests](https://github.com/abhik1368/netpredicter/issues)
 * **Authors:** [Abhik Seal](https://www.linkedin.com/in/abseal)
+
+
 To use the package and explore the PPI Interaction first download the PPI data from [Figshare](https://figshare.com/articles/Interactome_data/5572774) unzip and dump them into the data folder of the application.
 To install from github . 
 ```{r, echo=FALSE}
