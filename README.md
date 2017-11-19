@@ -14,10 +14,8 @@
 
 
 To use the package and explore the PPI Interaction first download the PPI data from [Figshare](https://figshare.com/articles/Interactome_data/5572774) unzip and dump them into the data folder of the application.
-To install from github . 
-```{r, echo=FALSE}
-shiny::runGitHub('Shiny_NetPredictor', 'abhik1368')
-```
+
+
 This will not install RRO package in your machine . For fast computations install RRO package from [MRAN](https://mran.revolutionanalytics.com/download/#download)
 
 ### Images of the App
