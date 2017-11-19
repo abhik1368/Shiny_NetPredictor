@@ -396,10 +396,6 @@ shinyUI(navbarPage(theme = shinytheme("flatly"),img(src = "netpredicter.png", he
                                          conditionalPanel(condition = "input.search_type == 'proteins'",
                                                           textInput("pid", "Hugo Gene:", width = NULL)),
                                          busyIndicator("Search In progress",wait = 0),
-#                                          radioButtons(inputId="algo_dtype",
-#                                                       label="Algorithm Type",
-#                                                       choices=c("NBI"="nbi", "RWR"="rwr"),
-#                                                       selected="nbi", inline=FALSE),
                                          actionButton('dSearch', label='Submit',
                                                       class = "btn btn-primary")
 
