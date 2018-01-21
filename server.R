@@ -35,8 +35,10 @@ options(shiny.fullstacktrace = TRUE)
 mod2 <- readRDS("data/genes.rds")
 ## trim forward and trainling spaces
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
-source('netpredictUI.R')
+#source('netpredictUI.R')
 #################################################################################
+mart = useMart("ensembl")
+human = useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl",host="www.ensembl.org")
 
 shinyServer( function(input, output,session) {
   
@@ -1115,7 +1117,8 @@ output$moduleplot <- renderVisNetwork({
               gname <-  gsub(" ", "",glist, fixed = TRUE)
               names <- unlist(strsplit(gname,"\n"))
               print (names)
-              human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
+              #mart = useMart("ensembl")
+              #human = useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl")
               mapTab <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = names, mart = human, uniqueRows=FALSE)
               geneID <- mapTab$entrezgene
 
@@ -1128,7 +1131,7 @@ output$moduleplot <- renderVisNetwork({
               gname <-  gsub(" ", "",glist, fixed = TRUE)
               names <- unlist(strsplit(gname,"\n"))
               print (names)
-              human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
+              #human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
               mapTab <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = names, mart = human, uniqueRows=FALSE)
               geneID <- mapTab$entrezgene
               x <- enrichPathway(gene=as.character(geneID),organism = "human",pvalueCutoff=0.05, readable=T)
@@ -1143,7 +1146,7 @@ output$moduleplot <- renderVisNetwork({
           gname <-  gsub(" ", "",glist, fixed = TRUE)
           names <- unlist(strsplit(gname,"\n"))
           print (names)
-          human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
+          #human <- useMart(host="www.ensembl.org", "ENSEMBL_MART_ENSEMBL", dataset="hsapiens_gene_ensembl")
           mapTab <- getBM(attributes = c("hgnc_symbol", "entrezgene"), filters = "hgnc_symbol", values = names, mart = human, uniqueRows=FALSE)
           geneID <- mapTab$entrezgene
           x <- enrichDGN(gene=as.character(geneID),pvalueCutoff=0.05, readable=T)
