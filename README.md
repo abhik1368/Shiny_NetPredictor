@@ -8,7 +8,6 @@
 * **Version:** 1.0.1
 * [![HitCount](http://hits.dwyl.io/abhik1368/Shiny_NetPredictor.svg)](5000)
 * [![MyGet](https://img.shields.io/myget/mongodb/dt/MongoDB.Driver.Core.svg)](21)
-* ![Read the Docs (version)](https://img.shields.io/readthedocs/pip/stable.svg)
 * [![](http://cranlogs.r-pkg.org/badges/netdiffuseR)](http://cran.rstudio.com/web/packages/netdiffuseR/index.html)
 * ![Status](http://img.shields.io/badge/status-In_development_%28STABLE%29-red.svg?style=flat)
 * [![License](http://img.shields.io/badge/license-AGPL--3-orange.svg?style=flat)](https://www.gnu.org/licenses/agpl-3.0.html)
