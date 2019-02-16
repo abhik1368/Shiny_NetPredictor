@@ -10,7 +10,6 @@
 * **Version:** 1.0.1
 * [![HitCount](http://hits.dwyl.io/abhik1368/Shiny_NetPredictor.svg)](5000)
 * [![Build Status](https://ci.appveyor.com/api/projects/status/y46iikfhmkfcs47l?svg=true)](https://ci.appveyor.com/project/mbojan/linkprediction-744d7)
-* [![MyGet](https://img.shields.io/myget/mongodb/dt/MongoDB.Driver.Core.svg)](21)
 * [![rstudio mirror downloads](http://cranlogs.r-pkg.org/badges/linkprediction?color=2ED968)](http://cranlogs.r-pkg.org/)
 * ![Status](http://img.shields.io/badge/status-In_development_%28STABLE%29-red.svg?style=flat)
 * [![License](http://img.shields.io/badge/license-AGPL--3-orange.svg?style=flat)](https://www.gnu.org/licenses/agpl-3.0.html)
